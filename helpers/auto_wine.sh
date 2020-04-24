@@ -32,11 +32,13 @@ for i in {1..50}; do
 	fi
 done
 
+wait
+
 printf " done! \nConcatenating results...";
 
-./concat_csv.py ../results/wine/bp/ ../results/wine-bp.csv
-./concat_csv.py ../results/wine/ga/ ../results/wine-ga.csv
-./concat_csv.py ../results/wine/pso/ ../results/wine-pso.csv
+./concat_csv.py ../results/wine/bp/ ../../wine-bp.csv
+./concat_csv.py ../results/wine/ga/ ../../wine-ga.csv
+./concat_csv.py ../results/wine/pso/ ../../wine-pso.csv
 
 sleep 1
 

@@ -3,7 +3,7 @@ General Network Parameters
 """
 
 def get_epochs():
-	num_epochs = 50
+	num_epochs = 100
 	return num_epochs
 
 def get_hidden_size(data_used):
@@ -22,7 +22,7 @@ GA-NN Specific Parameters
 """
 
 def get_population_size():
-	population_size = 50
+	population_size = 100
 	return population_size
 
 def get_ga_params(data_used):
@@ -38,7 +38,7 @@ PSO-NN Specific Parameters
 """
 
 def get_swarm_size():
-	swarm_size = 50
+	swarm_size = 100
 	return swarm_size
 
 def get_pso_params(data_used):

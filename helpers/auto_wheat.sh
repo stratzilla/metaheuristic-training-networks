@@ -32,11 +32,13 @@ for i in {1..50}; do
 	fi
 done
 
+wait
+
 printf " done! \nConcatenating results...";
 
-./concat_csv.py ../results/wheat/bp/ ../results/wheat-bp.csv
-./concat_csv.py ../results/wheat/ga/ ../results/wheat-ga.csv
-./concat_csv.py ../results/wheat/pso/ ../results/wheat-pso.csv
+./concat_csv.py ../results/wheat/bp/ ../../wheat-bp.csv
+./concat_csv.py ../results/wheat/ga/ ../../wheat-ga.csv
+./concat_csv.py ../results/wheat/pso/ ../../wheat-pso.csv
 
 sleep 1
 

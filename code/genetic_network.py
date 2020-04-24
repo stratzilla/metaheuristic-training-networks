@@ -200,7 +200,7 @@ def mutation(child, mr):
 		# only perform mutation based on the mutation rate
 		if random.uniform(0.00, 1.00) <= mr:
 			# update that axes with random position
-			genes[i] = random.gauss(mu=genes[i], sigma=(0.6 + MSE[-1]))
+			genes[i] = random.gauss(mu=genes[i], sigma=(0.5 + MSE[-1]))
 	# we don't need to update the fitness if the gene
 	# hasn't changed, so only update genes if they've changed
 	if genes != child.get_genes():

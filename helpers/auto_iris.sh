@@ -32,11 +32,13 @@ for i in {1..50}; do
 	fi
 done
 
+wait
+
 printf " done! \nConcatenating results...";
 
-./concat_csv.py ../results/iris/bp/ ../results/iris-bp.csv
-./concat_csv.py ../results/iris/ga/ ../results/iris-ga.csv
-./concat_csv.py ../results/iris/pso/ ../results/iris-pso.csv
+./concat_csv.py ../results/iris/bp/ ../../iris-bp.csv
+./concat_csv.py ../results/iris/ga/ ../../iris-ga.csv
+./concat_csv.py ../results/iris/pso/ ../../iris-pso.csv
 
 sleep 1
 
