@@ -1,8 +1,8 @@
-#!/usr/bin/gnuplot -persist
+#!/usr/bin/gnuplot
 
 # create PNG output
 set terminal png
-set output "../results/plots/wine-plot.png"
+set output "../results/plots/".res."-plot.png"
 
 # set parameters for MSE lines later
 set parametric
@@ -16,9 +16,9 @@ set ylabel "MSE" offset 2
 set datafile separator comma
 
 # load CSV as lines
-bp = "../results/wine-bp.csv" 
-ga = "../results/wine-ga.csv"
-pso = "../results/wine-pso.csv"
+bp = "../results/".res."-bp.csv" 
+ga = "../results/".res."-ga.csv"
+pso = "../results/".res."-pso.csv"
 
 # get column count
 cols_bp = int(system('head -1 '.bp.' | wc -w'))+1
