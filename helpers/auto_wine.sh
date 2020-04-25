@@ -5,9 +5,11 @@ mkdir -p ../results/wine/ga
 mkdir -p ../results/wine/pso
 mkdir -p ../results/plots
 
+max_runs=50
+
 printf "\nGetting results for BP-NN with Wine data set...";
 
-for i in {1..50}; do
+for i in $(seq 1 $max_runs); do
 	../code/backprop_network.py wine 1 > ../results/wine/bp/${i}.csv &
 	if [ $(( $i % 10 )) == 0 ]; then
 		wait
@@ -16,7 +18,7 @@ done
 
 printf " done! \nGetting results for GA-NN with Wine data set...";
 
-for i in {1..50}; do
+for i in $(seq 1 $max_runs); do
 	../code/genetic_network.py wine 1 > ../results/wine/ga/${i}.csv &
 	if [ $(( $i % 10 )) == 0 ]; then
 		wait
@@ -25,7 +27,7 @@ done
 
 printf " done! \nGetting results for PSO-NN with Wine data set...";
 
-for i in {1..50}; do
+for i in $(seq 1 $max_runs); do
 	../code/particle_network.py wine 1 > ../results/wine/pso/${i}.csv &
 	if [ $(( $i % 10 )) == 0 ]; then
 		wait
@@ -57,11 +59,15 @@ printf " done! \nMaking plots...";
 
 ./plot_wine.gp
 
+sleep 0.5
+
 printf " done! \nCleaning up...";
 
 rm -r ../results/wine
 rm -r ../results/wine-bp.csv
 rm -r ../results/wine-ga.csv
 rm -r ../results/wine-pso.csv
+
+sleep 0.5
 
 printf " done! \nCompleted collecting Wine data!\n\n";

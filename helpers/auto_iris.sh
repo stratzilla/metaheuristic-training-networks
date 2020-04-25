@@ -5,9 +5,11 @@ mkdir -p ../results/iris/ga
 mkdir -p ../results/iris/pso
 mkdir -p ../results/plots
 
+max_runs=50
+
 printf "\nGetting results for BP-NN with Iris data set...";
 
-for i in {1..50}; do
+for i in $(seq 1 $max_runs); do
 	../code/backprop_network.py iris 1 > ../results/iris/bp/${i}.csv &
 	if [ $(( $i % 10 )) == 0 ]; then
 		wait
@@ -16,7 +18,7 @@ done
 
 printf " done! \nGetting results for GA-NN with Iris data set...";
 
-for i in {1..50}; do
+for i in $(seq 1 $max_runs); do
 	../code/genetic_network.py iris 1 > ../results/iris/ga/${i}.csv &
 	if [ $(( $i % 10 )) == 0 ]; then
 		wait
@@ -25,7 +27,7 @@ done
 
 printf " done! \nGetting results for PSO-NN with Iris data set...";
 
-for i in {1..50}; do
+for i in $(seq 1 $max_runs); do
 	../code/particle_network.py iris 1 > ../results/iris/pso/${i}.csv &
 	if [ $(( $i % 10 )) == 0 ]; then
 		wait
@@ -57,11 +59,15 @@ printf " done! \nMaking plots...";
 
 ./plot_iris.gp
 
+sleep 0.5
+
 printf " done! \nCleaning up...";
 
 rm -r ../results/iris
 rm -r ../results/iris-bp.csv
 rm -r ../results/iris-ga.csv
 rm -r ../results/iris-pso.csv
+
+sleep 0.5
 
 printf " done! \nCompleted collecting Iris data!\n\n";

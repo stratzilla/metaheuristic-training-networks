@@ -5,9 +5,11 @@ mkdir -p ../results/breast/ga
 mkdir -p ../results/breast/pso
 mkdir -p ../results/plots
 
+max_runs=50
+
 printf "\nGetting results for BP-NN with Breast Cancer data set...";
 
-for i in {1..50}; do
+for i in $(seq 1 $max_runs); do
 	../code/backprop_network.py breast 1 > ../results/breast/bp/${i}.csv &
 	if [ $(( $i % 10 )) == 0 ]; then
 		wait
@@ -16,7 +18,7 @@ done
 
 printf " done! \nGetting results for GA-NN with Breast Cancer data set...";
 
-for i in {1..50}; do
+for i in $(seq 1 $max_runs); do
 	../code/genetic_network.py breast 1 > ../results/breast/ga/${i}.csv &
 	if [ $(( $i % 10 )) == 0 ]; then
 		wait
@@ -25,7 +27,7 @@ done
 
 printf " done! \nGetting results for PSO-NN with Breast Cancer data set...";
 
-for i in {1..50}; do
+for i in $(seq 1 $max_runs); do
 	../code/particle_network.py breast 1 > ../results/breast/pso/${i}.csv &
 	if [ $(( $i % 10 )) == 0 ]; then
 		wait
@@ -57,11 +59,15 @@ printf " done! \nMaking plots...";
 
 ./plot_breast.gp
 
+sleep 0.5
+
 printf " done! \nCleaning up...";
 
 rm -r ../results/breast
 rm -r ../results/breast-bp.csv
 rm -r ../results/breast-ga.csv
 rm -r ../results/breast-pso.csv
+
+sleep 0.5
 
 printf " done! \nCompleted collecting Breast Cancer data!\n\n";

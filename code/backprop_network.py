@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-import random # for shuffling data and weight init 
+import random
 import pandas as pd
-import matplotlib.pyplot as plt # for plotting
-from math import exp, floor, ceil
+import matplotlib.pyplot as plt
+from math import exp
 from sys import argv, exit
 import network_params as net
 
@@ -11,12 +11,12 @@ def helper(e):
 	"""Helper function.
 	Outputs to console performance.
 	"""
-	if not AUTO:
+	if not AUTO: # if results collection
 		err = MSE[-1]
 		tr = TRP[-1]
 		te = TEP[-1]
 		print(f'{e}, {err:.4f}, {tr:.2f}, {te:.2f}')
-	else:
+	else: # normal execution
 		err = MSE[-1]
 		print(f'{err:.4f}')
 
@@ -29,7 +29,7 @@ def stochastic_gradient_descent(network, classes, training_data):
 		classes : the number of classes for the data.
 		training_data : data to train the network on.
 	"""
-	if not AUTO:
+	if not AUTO: # if normal execution
 		print('Epoch, MSE, Train. Acc%, Test Acc%')
 	for e in range(1, EPOCHS+1):
 		# there is no temporal delta and therefore no momentum for the first
@@ -59,7 +59,7 @@ def stochastic_gradient_descent(network, classes, training_data):
 		MSE.append(total_error/len(training_data))
 		TRP.append(performance_measure(NETWORK, TRAIN))
 		TEP.append(performance_measure(NETWORK, TEST))
-		helper(e)
+		helper(e) # output to console
 
 def feed_forward(network, example):
 	"""Feedforward method. Feeds data forward through network.
@@ -148,14 +148,14 @@ def update_weights(network, example, delta):
 
 def sse(actual, target):
 	"""Sum Square Error loss function.
-	Determines error of network.
+	Determines error of network given an example.
 
 	Parameters:
 		actual : the actual output from the network.
 		target : the expected output from the network.
 		
 	Returns:
-		The sum squared error of the network.
+		The sum squared error of the network for example.
 	"""
 	summ = 0.00
 	for i in range(len(actual)):
@@ -163,7 +163,7 @@ def sse(actual, target):
 	return summ
 
 def activation_function(z):
-	"""Hyperbolic tangent function.
+	"""Logistic Sigmoid function.
 	
 	Parameters:
 		z : summed output of neuron.
@@ -174,7 +174,7 @@ def activation_function(z):
 	return 1 / (1 + exp(-z))
 
 def activation_derivative(z):
-	"""Derivative of hyperbolic function.
+	"""Derivative of Logistic Sigmoid function.
 
 	Parameters:
 		z : summing output.
@@ -304,7 +304,7 @@ if __name__ == '__main__':
 	CLASSES = len(list(set([c[-1] for c in (TRAIN+TEST)])))
 	HIDDEN_SIZE = net.get_hidden_size(argv[1])
 	NETWORK = initialize_network(FEATURES, HIDDEN_SIZE, CLASSES)
-	LEARNING_RATE, MOMENTUM_RATE = 0.100, 0.001
+	LEARNING_RATE, MOMENTUM_RATE = net.get_bp_params(argv[1])
 	EPOCHS = net.get_epochs()
 	MSE, TRP, TEP = [], [], []
 	stochastic_gradient_descent(NETWORK, CLASSES, TRAIN)

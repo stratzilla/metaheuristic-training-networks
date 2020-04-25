@@ -5,9 +5,11 @@ mkdir -p ../results/wheat/ga
 mkdir -p ../results/wheat/pso
 mkdir -p ../results/plots
 
+max_runs=50
+
 printf "\nGetting results for BP-NN with Wheat Seeds data set...";
 
-for i in {1..50}; do
+for i in $(seq 1 $max_runs); do
 	../code/backprop_network.py wheat 1 > ../results/wheat/bp/${i}.csv &
 	if [ $(( $i % 10 )) == 0 ]; then
 		wait
@@ -16,7 +18,7 @@ done
 
 printf " done! \nGetting results for GA-NN with Wheat Seeds data set...";
 
-for i in {1..50}; do
+for i in $(seq 1 $max_runs); do
 	../code/genetic_network.py wheat 1 > ../results/wheat/ga/${i}.csv &
 	if [ $(( $i % 10 )) == 0 ]; then
 		wait
@@ -25,7 +27,7 @@ done
 
 printf " done! \nGetting results for PSO-NN with Wheat Seeds data set...";
 
-for i in {1..50}; do
+for i in $(seq 1 $max_runs); do
 	../code/particle_network.py wheat 1 > ../results/wheat/pso/${i}.csv &
 	if [ $(( $i % 10 )) == 0 ]; then
 		wait
@@ -57,11 +59,15 @@ printf " done! \nMaking plots...";
 
 ./plot_wheat.gp
 
+sleep 0.5
+
 printf " done! \nCleaning up...";
 
 rm -r ../results/wheat
 rm -r ../results/wheat-bp.csv
 rm -r ../results/wheat-ga.csv
 rm -r ../results/wheat-pso.csv
+
+sleep 0.5
 
 printf " done! \nCompleted collecting Wheat Seeds data!\n\n";

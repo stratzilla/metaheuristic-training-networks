@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import pandas as pd
-from math import floor, ceil, exp
 import matplotlib.pyplot as plt
 import random
 from sys import argv, exit
@@ -45,8 +44,8 @@ class Particle:
 	def set_pos(self, pos):
 		"""Position mutator method."""
 		self.pos = pos
-		if not any(p < -5.00 for p in pos)\
-		and not any(p > 5.00 for p in pos):
+		if not any(p < -BOUND for p in pos)\
+		and not any(p > BOUND for p in pos):
 			# get fitness of new position
 			network = initialize_network(self.pos)
 			fitness = mse(network)
@@ -92,12 +91,15 @@ def pso(dim, epochs, swarm_size, ic, cc, sc):
 	"""
 	if not AUTO:
 		print('Epoch, MSE, Train. Acc%, Test Acc%')
-	swarm = initialize_swarm(swarm_size, dim)
+	swarm = initialize_swarm(swarm_size, dim) # init swarm
 	for e in range(1, epochs+1):
+		# get swarm best fitness and position
 		swarm_best = get_swarm_best(swarm)
-		MSE.append(swarm_best[0])
+		MSE.append(swarm_best[0]) # get error of network using swarm best
+		# get classification error of network for training and test
 		TRP.append(performance_measure(swarm_best[1], TRAIN))
 		TEP.append(performance_measure(swarm_best[1], TEST))
+		# reposition particles based on PSO params
 		move_particles(swarm, dim, ic, cc, sc)
 		helper(e)
 
@@ -238,16 +240,16 @@ def activation_function(z):
 	"""
 	return z if z >= 0 else 0.01 * z
 
-def performance_measure(chromosome, data):
+def performance_measure(particle, data):
 	"""Measures accuracy of the network using classification error.
 	
 	Parameters:
-		chromosome : the chromosome to test.
+		particle : the particle to test.
 		data : a set of data examples.
 	Returns:
 		A percentage of correct classifications.
 	"""
-	network = initialize_network(chromosome)
+	network = initialize_network(particle)
 	correct, total = 0, 0
 	for example in data:
 		# check to see if the network output matches target output
@@ -356,8 +358,8 @@ if __name__ == '__main__':
 		(CLASSES * (HIDDEN_SIZE+1))
 	SWARM_SIZE = net.get_swarm_size()
 	EPOCHS = net.get_epochs()
-	W, C_1, C_2 = net.get_pso_params(argv[1])
+	W, C_1, C_2, BOUND = net.get_pso_params(argv[1])
 	pso(DIMENSIONS, EPOCHS, SWARM_SIZE, W, C_1, C_2)
-	#if not AUTO:
-	#	plot_data()
+	if not AUTO:
+		plot_data()
 	exit(0)
