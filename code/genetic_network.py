@@ -200,7 +200,7 @@ def mutation(child, mr):
 		# only perform mutation based on the mutation rate
 		if random.uniform(0.00, 1.00) <= mr:
 			# update that axes with random position
-			genes[i] = random.gauss(mu=genes[i], sigma=(0.7 + MSE[-1]))
+			genes[i] = random.gauss(mu=genes[i], sigma=(BASE + MSE[-1]))
 	# we don't need to update the fitness if the gene
 	# hasn't changed, so only update genes if they've changed
 	if genes != child.get_genes():
@@ -445,8 +445,8 @@ if __name__ == '__main__':
 	CHROMOSOME_SIZE = (HIDDEN_SIZE * (FEATURES+1)) + \
 		(CLASSES * (HIDDEN_SIZE+1))
 	POP_SIZE = net.get_population_size()
-	CROSS_RATE, MUTAT_RATE, \
-		ELITE_PROPORTION, TOURN_PROPORTION = net.get_ga_params(argv[1])
+	CROSS_RATE, MUTAT_RATE, ELITE_PROPORTION, \
+		TOURN_PROPORTION, BASE = net.get_ga_params(argv[1])
 	EPOCHS = net.get_epochs()
 	genetic_network(ELITE_PROPORTION, TOURN_PROPORTION, \
 		CHROMOSOME_SIZE, EPOCHS, POP_SIZE, CROSS_RATE, MUTAT_RATE)

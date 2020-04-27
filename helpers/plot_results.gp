@@ -1,5 +1,8 @@
 #!/usr/bin/gnuplot
 
+# verify argument was passed
+if (!exists("res")) { exit 1 }
+
 # create PNG output
 set terminal png
 set output "../results/plots/".res."-plot.png"
