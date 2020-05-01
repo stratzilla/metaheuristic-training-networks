@@ -55,6 +55,28 @@ The algorithms are data agnostic and will take any data, you just need to prepro
 
 BP, GA, PSO parameters can be found in `/code/network_params.py`: it's separated so you can edit and test parameters without editing each network's code. The parameters as seen there work generally well but of course you can probably find better parameters through experimentation.
 
+# Data
+
+I tested four data sets as found in `/data`: Iris, Wheat Seeds, Wine, and Breast Cancer. Here is some information about each data set:
+
+| Data Set      | Instances | Attributes | Classes |
+| ------------- | --------- | ---------- | ------- |
+| Iris          | 151       | 4          | 3       |
+| Wheat Seeds   | 211       | 7          | 3       |
+| Wine          | 178       | 13         | 3       |
+| Breast Cancer | 570       | 31         | 2       |
+
+Each network structure was different for each data set. Since dimensionality of the problem is based on the network topology, it was also found (NB: HL and OL have one bias neuron):
+
+| Data Set      | IL Size | HL Size | OL Size | Dimensionality |
+| ------------- | ------- | ------- | ------- | -------------- |
+| Iris          | 4       | 3       | 3       | 27             |
+| Wheat Seeds   | 7       | 5       | 3       | 58             |
+| Wine          | 13      | 6       | 3       | 105            |
+| Breast Cancer | 31      | 8       | 2       | 274            |
+
+Dimensionality is simply `(HL * (IL + 1)) + (OL * (HL + 1))`. These data sets were chosen to visualize results on iteratively increasing dimensionality and to see if one network training method was better for a specific problem size.
+
 # Results
 
 You can see CSV results in `/results` or for a visualization of mean squared error over epochs for each network, you can see these in `/results/plots`. Below is a summary of results:
