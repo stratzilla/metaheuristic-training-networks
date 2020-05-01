@@ -2,7 +2,7 @@
 
 This repository was used for a comparative study between backpropagation trained feed forward networks and the same using genetic algorithms and particle swarm optimization in lieu of backpropagation.
 
-I was interested in using PSO to train a neural network and decided to compare it, along with GA, to BP. Results are interesting: PSO-NN works very well for smaller data but BP-NN is the clear winner in higher dimensional data. GA-NN was found to be impractical or inefficient for training irrespective of problem size.
+I was interested in using PSO to train a neural network and decided to compare it, along with GA, to BP. Results are interesting: PSO-NN works very well for smaller data but BP-NN is the clear winner in higher dimensional data. GA-NN was found to be impractical or inefficient for training irrespective of problem size like due to genetic algorithms being unoptimized for continuous data like this.
 
 # Dependencies
 
@@ -13,11 +13,15 @@ I was interested in using PSO to train a neural network and decided to compare i
 - `pandas`
 - `matplotlib`
 
+`pandas` is used to load and normalize input data but can be omitted if you do not wish to meet that dependency: it can be rewritten using standard Python modules. `matplotlib` is also optional as you do not need to make a plot upon execution end: results are also output to console. `gnuplot` is only necessary using automation scripts as included.
+
 # Execution
 
 You can clone this repository to your computer like so:
 
-` $ git clone https://www.github.com/stratzilla/metaheuristic-training-networks`
+```bash
+ $ git clone https://www.github.com/stratzilla/metaheuristic-training-networks`
+```
 
 You can run any of the training scripts in `/code` like so:
 
@@ -35,7 +39,7 @@ If you want to automate training multiple networks to find the mean between trai
  $ ./results_collection.sh <arg>
 ```
 
-This will train fifty networks of each type, concatenate the results, and use `gnuplot` to make a master plot comparing each training technique. You can edit this file manually to change how many runs per network and how many concurrent runs (default is `50` and `10` respectively).
+This will train fifty networks of each type, concatenate the results into a master CSV file, then use `gnuplot` to make a master plot comparing each training technique. You can edit this file manually to change how many runs per network and how many concurrent runs (default is `50` and `10` respectively).
 
 These scripts use these for `<arg>`:
 
@@ -49,13 +53,15 @@ These data sets are defined in `/data`.
 
 The algorithms are data agnostic and will take any data, you just need to preprocess data to be accepted: final columnar value for data is the classification while the others are attributes. Classes must be enumerated starting at `0`, and data should be numerical (continuous or integer).
 
+BP, GA, PSO parameters can be found in `/code/network_params.py`: it's separated so you can edit and test parameters without editing each network's code. The parameters as seen there work generally well but of course you can probably find better parameters through experimentation.
+
 # Results
 
 You can see CSV results in `/results` or for a visualization of mean squared error over epochs for each network, you can see these in `/results/plots`. Below is a summary of results:
 
-<img width="30%" src="https://raw.githubusercontent.com/stratzilla/metaheuristic-training-networks/master/results/plots/iris-plot.png"/> <img width="30%" src="https://raw.githubusercontent.com/stratzilla/metaheuristic-training-networks/master/results/plots/wheat-plot.png"/> 
+<img width="35%" src="https://raw.githubusercontent.com/stratzilla/metaheuristic-training-networks/master/results/plots/iris-plot.png"/><img width="35%" src="https://raw.githubusercontent.com/stratzilla/metaheuristic-training-networks/master/results/plots/wheat-plot.png"/> 
 
-<img width="30%" src="https://raw.githubusercontent.com/stratzilla/metaheuristic-training-networks/master/results/plots/wine-plot.png"/> <img width="30%" src="https://raw.githubusercontent.com/stratzilla/metaheuristic-training-networks/master/results/plots/breast-plot.png"/>
+<img width="35%" src="https://raw.githubusercontent.com/stratzilla/metaheuristic-training-networks/master/results/plots/wine-plot.png"/><img width="35%" src="https://raw.githubusercontent.com/stratzilla/metaheuristic-training-networks/master/results/plots/breast-plot.png"/>
 
 Clockwise from top-left: Iris data set, Wheat Seeds data set, Wine data set, Breast Cancer data set. Curve is mean squared error per epoch and the tick at the bottom is the epoch in which training reached a termination condition (MSE <= 0.1).
 
@@ -63,4 +69,4 @@ You can see PSO-NN and GA-NN outperform BP-NN for Iris (of which an ANOVA test s
 
 # Further Reading
 
-I wrote a <a href="https://github.com/stratzilla/reports/blob/master/mh-compare-document.pdf">paper</a> describing my experimental methodology and results in more detail. I also wrote three tutorials for implementing <a href="https://github.com/stratzilla/neural-network-tutorial">BP-NN</a>, a <a href="https://github.com/stratzilla/genetic-network-tutorial">GA-NN</a>, and a <a href="https://github.com/stratzilla/particle-network-tutorial">PSO-NN</a>.
+I wrote a <a href="https://github.com/stratzilla/reports/blob/master/mh-compare-document.pdf">paper</a> describing my experimental methodology and results in more detail. I also wrote three tutorials for implementing a <a href="https://github.com/stratzilla/neural-network-tutorial">BP-NN</a>, a <a href="https://github.com/stratzilla/genetic-network-tutorial">GA-NN</a>, and a <a href="https://github.com/stratzilla/particle-network-tutorial">PSO-NN</a>. The code found in this repository is more or less taken straight from these tutorials as I made the tutorials to prepare for my experimentation.
