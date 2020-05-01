@@ -35,7 +35,7 @@ If you want to automate training multiple networks to find the mean between trai
  $ ./results_collection.sh <arg>
 ```
 
-This will train fifty networks of each time, concatenate results, and use `gnuplot` to make a master plot comparing each training technique. You can edit this file manually to change how many runs per network and how many concurrent runs (default is `50` and `10`).
+This will train fifty networks of each type, concatenate the results, and use `gnuplot` to make a master plot comparing each training technique. You can edit this file manually to change how many runs per network and how many concurrent runs (default is `50` and `10`).
 
 These scripts use these for `<arg>`:
 
