@@ -17,7 +17,6 @@ comb = pd.concat([pd.read_csv(f, header=None) for f in filenames], axis=1)
 comb.columns = [f'Run {i+1}' for i in range(len(comb.columns))]
 
 # get the 40% worst performing runs
-# this is meant for 50 runs - 20 runs = 30 for relevance
 worst_columns = (comb.iloc[-1].nlargest(floor(len(comb.columns)*0.4)).index)
 # and remove them from the df
 comb = comb.drop(worst_columns, axis=1)

@@ -3,7 +3,7 @@ General Network Parameters
 """
 
 def get_epochs():
-	num_epochs = 100
+	num_epochs = 50
 	return num_epochs
 
 def get_hidden_size(data_used):

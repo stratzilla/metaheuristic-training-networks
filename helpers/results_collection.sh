@@ -55,13 +55,14 @@ mkdir -p ../results/${1}/pso
 mkdir -p ../results/plots
 
 max_runs=50
+max_concurrent_runs=10
 
 printf "\nGetting results for BP-NN with $data_name data set...";
 
 # collect BP-NN data
 for i in $(seq 1 $max_runs); do
 	../code/backprop_network.py ${1} 1 > ../results/${1}/bp/${i}.csv &
-	if [ $(( $i % 10 )) == 0 ]; then
+	if [ $(( $i % $max_concurrent_runs )) == 0 ]; then
 		# only train ten networks at once
 		wait
 	fi
@@ -72,7 +73,7 @@ printf " done! \nGetting results for GA-NN with $data_name data set...";
 # collect GA-NN data
 for i in $(seq 1 $max_runs); do
 	../code/genetic_network.py ${1} 1 > ../results/${1}/ga/${i}.csv &
-	if [ $(( $i % 10 )) == 0 ]; then
+	if [ $(( $i % $max_concurrent_runs )) == 0 ]; then
 		wait
 	fi
 done
@@ -82,7 +83,7 @@ printf " done! \nGetting results for PSO-NN with $data_name data set...";
 # collect PSO-NN data
 for i in $(seq 1 $max_runs); do
 	../code/particle_network.py ${1} 1 > ../results/${1}/pso/${i}.csv &
-	if [ $(( $i % 10 )) == 0 ]; then
+	if [ $(( $i % $max_concurrent_runs )) == 0 ]; then
 		wait
 	fi
 done

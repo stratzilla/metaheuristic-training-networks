@@ -425,9 +425,9 @@ def plot_data():
 	ax1.set_ylabel('Accuracy (%)', color='green')
 	line2, = ax1.plot(x, TRP, '-', c='green', lw='1', label='Training')
 	line3, = ax1.plot(x, TEP, ':', c='green', lw='1', label='Testing')
-	fig.tight_layout()
 	fig.legend(loc='center')
 	ax1.set_ylim(0, 101)
+	plt.title(f'GA-NN ({argv[1]})')
 	plt.show()
 	plt.clf()
 
