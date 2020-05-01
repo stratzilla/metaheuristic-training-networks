@@ -35,7 +35,7 @@ If you want to automate training multiple networks to find the mean between trai
  $ ./results_collection.sh <arg>
 ```
 
-This will train fifty networks of each type, concatenate the results, and use `gnuplot` to make a master plot comparing each training technique. You can edit this file manually to change how many runs per network and how many concurrent runs (default is `50` and `10`).
+This will train fifty networks of each type, concatenate the results, and use `gnuplot` to make a master plot comparing each training technique. You can edit this file manually to change how many runs per network and how many concurrent runs (default is `50` and `10` respectively).
 
 These scripts use these for `<arg>`:
 
@@ -43,6 +43,7 @@ These scripts use these for `<arg>`:
 - `wheat` for Wheat Seeds data set
 - `wine` for Wine data set
 - `breast` for Breast Cancer data set
+- `all` as argument for `results_collection.sh` will perform all four experiments
 
 These data sets are defined in `/data`.
 
@@ -50,4 +51,16 @@ The algorithms are data agnostic and will take any data, you just need to prepro
 
 # Results
 
-You can see CSV results in `/results` or for a visualization of mean squared error over epochs for each network, you can see these in `/img`.
+You can see CSV results in `/results` or for a visualization of mean squared error over epochs for each network, you can see these in `/results/plots`. Below is a summary of results:
+
+<img width="30%" src="https://raw.githubusercontent.com/stratzilla/metaheuristic-training-networks/master/results/plots/iris-plot.png"/> <img width="30%" src="https://raw.githubusercontent.com/stratzilla/metaheuristic-training-networks/master/results/plots/wheat-plot.png"/> 
+
+<img width="30%" src="https://raw.githubusercontent.com/stratzilla/metaheuristic-training-networks/master/results/plots/wine-plot.png"/> <img width="30%" src="https://raw.githubusercontent.com/stratzilla/metaheuristic-training-networks/master/results/plots/breast-plot.png"/>
+
+Clockwise from top-left: Iris data set, Wheat Seeds data set, Wine data set, Breast Cancer data set. Curve is mean squared error per epoch and the tick at the bottom is the epoch in which training reached a termination condition (MSE <= 0.1).
+
+You can see PSO-NN and GA-NN outperform BP-NN for Iris (of which an ANOVA test shows there is stochastic dominance), for Wheat Seeds there is no dominance between training methods, and the remaining two showing statistically significant difference in favor of BP-NN. This suggests PSO-NN is suitable for smaller problem sized whereas BP-NN is generally preferred for higher dimensional problems. GA-NN results suggest some promise but in practice it was found impractical for network training.
+
+# Further Reading
+
+I wrote a <a href="https://github.com/stratzilla/reports/blob/master/mh-compare-document.pdf">paper</a> describing my experimental methodology and results in more detail. I also wrote three tutorials for implementing <a href="https://github.com/stratzilla/neural-network-tutorial">BP-NN</a>, a <a href="https://github.com/stratzilla/genetic-network-tutorial">GA-NN</a>, and a <a href="https://github.com/stratzilla/particle-network-tutorial">PSO-NN</a>.
