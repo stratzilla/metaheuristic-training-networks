@@ -85,7 +85,7 @@ You can see CSV results in `/results` or for a visualization of mean squared err
 
 <img width="35%" src="https://raw.githubusercontent.com/stratzilla/metaheuristic-training-networks/master/results/plots/wine-plot.png"/><img width="35%" src="https://raw.githubusercontent.com/stratzilla/metaheuristic-training-networks/master/results/plots/breast-plot.png"/>
 
-Clockwise from top-left: Iris data set, Wheat Seeds data set, Wine data set, Breast Cancer data set. Curve is mean squared error per epoch and the tick at the bottom is the epoch in which training reached a termination condition (MSE <= 0.1).
+Left-to-right, top-to-bottom: Iris data set, Wheat Seeds data set, Wine data set, Breast Cancer data set. Curve is mean squared error per epoch and the tick at the bottom is the epoch in which training reached a termination condition (MSE <= 0.1).
 
 You can see PSO-NN and GA-NN outperform BP-NN for Iris (of which an ANOVA test shows there is stochastic dominance), for Wheat Seeds there is no dominance between training methods, and the remaining two showing statistically significant difference in favor of BP-NN. This suggests PSO-NN is suitable for smaller problem sized whereas BP-NN is generally preferred for higher dimensional problems. GA-NN results suggest some promise but in practice it was found impractical for network training.
 
