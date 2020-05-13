@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
+import random
 from sys import argv, exit
 from math import exp
-import random
 import network_shared as shr
 import network_params as net
 
@@ -33,7 +33,7 @@ def stochastic_gradient_descent(network, classes, training_data):
 			# get actual output from feed forward pass. Feeding forward will
 			# also initialize network neuron outputs to be used in backprop
 			actual = feed_forward(network, example)
-			total_error += sse(actual, outputs) # aggregate error
+			total_error += shr.sse(actual, outputs) # aggregate error
 			# perform backpropagation to propagate error through network
 			backpropagate(network, outputs)
 			# update weights based on network params and neuron contents
@@ -45,15 +45,13 @@ def stochastic_gradient_descent(network, classes, training_data):
 		MSE.append(total_error/len(training_data))
 		TRP.append(performance_measure(NETWORK, TRAIN))
 		TEP.append(performance_measure(NETWORK, TEST))
-		shr.helper(e, MSE, TRP, TEP, AUTO) # output to console
+		shr.helper(AUTO, e, MSE, TRP, TEP) # output to console
 
 def feed_forward(network, example):
 	"""Feedforward method. Feeds data forward through network.
-
 	Parameters:
 		network : the neural network.
 		example : an example of data to feed forward.
-
 	Returns:
 		The output of the forward pass.
 	"""
@@ -61,7 +59,7 @@ def feed_forward(network, example):
 	for layer in network:
 		for neuron in layer:
 			# sum the weight with inputs
-			summ = summing_function(neuron['w'], layer_input)
+			summ = shr.summing_function(neuron['w'], layer_input)
 			# activate the sum, store output
 			neuron['o'] = activation_function(summ)
 			# append output to outputs
@@ -132,22 +130,6 @@ def update_weights(network, example, delta):
 				# also update neural bias
 				neuron['w'][-1] += LEARNING_RATE * neuron['d']
 
-def sse(actual, target):
-	"""Sum Square Error loss function.
-	Determines error of network given an example.
-
-	Parameters:
-		actual : the actual output from the network.
-		target : the expected output from the network.
-
-	Returns:
-		The sum squared error of the network for example.
-	"""
-	summ = 0.00
-	for i in range(len(actual)):
-		summ += (actual[i] - target[i])**2
-	return summ
-
 def activation_function(z):
 	"""Logistic Sigmoid function.
 
@@ -169,23 +151,6 @@ def activation_derivative(z):
 		The differential of the neural output.
 	"""
 	return z * (1 - z)
-
-def summing_function(weights, inputs):
-	"""Sums the synapse weights with inputs and bias.
-
-	Parameters:
-		weights : synaptic weights.
-		inputs : a vector of inputs.
-
-	Returns:
-		The aggregate of inputs times weights, plus bias.
-	"""
-	bias = weights[-1] # bias is the final value in the weight vector
-	summ = 0.00 # to sum
-	for i in range(len(weights)-1):
-		# aggregate the weights with input values
-		summ += (weights[i] * float(inputs[i]))
-	return summ + bias
 
 def performance_measure(network, data):
 	"""Measures accuracy of the network using classification error.

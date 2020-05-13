@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from sys import argv, exit
 import random
+from sys import argv, exit
 import network_shared as shr
 import network_params as net
 
@@ -23,7 +23,7 @@ class Particle:
 		self.pos, self.vel = pos, vel
 		# find fitness at instantiation
 		network = initialize_network(self.pos)
-		self.fit = mse(network)
+		self.fit = shr.mse(network, CLASSES, TRAIN, activation_function)
 		# best so far is just initial
 		self.best_pos, self.best_fit = self.pos, self.fit
 
@@ -34,7 +34,7 @@ class Particle:
 		and not any(p > BOUND for p in pos):
 			# get fitness of new position
 			network = initialize_network(self.pos)
-			fitness = mse(network)
+			fitness = shr.mse(network, CLASSES, TRAIN, activation_function)
 			# if better
 			if fitness < self.best_fit:
 				self.fit = fitness
@@ -82,14 +82,14 @@ def pso(dim, epochs, swarm_size, ic, cc, sc):
 		# get swarm best fitness and position
 		swarm_best = get_swarm_best(swarm)
 		MSE.append(swarm_best[0]) # get error of network using swarm best
-		# network from swarm best
+		# network to get performance metrics on
 		network = initialize_network(swarm_best[1])
 		# get classification error of network for training and test
-		TRP.append(performance_measure(network, TRAIN))
-		TEP.append(performance_measure(network, TEST))
+		TRP.append(shr.performance_measure(network, TRAIN, activation_function))
+		TEP.append(shr.performance_measure(network, TEST, activation_function))
 		# reposition particles based on PSO params
 		move_particles(swarm, dim, ic, cc, sc)
-		shr.helper(e, MSE, TRP, TEP, AUTO)
+		shr.helper(AUTO, e, MSE, TRP, TEP)
 
 def move_particles(swarm, dim, ic, cc, sc):
 	"""Particle movement function.
@@ -178,45 +178,6 @@ def initialize_network(p):
 	neural_network.append([[next(part) for i in range(h+1)] for j in range(o)])
 	return neural_network
 
-def feed_forward(network, example):
-	"""Feedforward method. Feeds data forward through network.
-
-	Parameters:
-		network : the neural network.
-		example : an example of data to feed forward.
-
-	Returns:
-		The output of the forward pass.
-	"""
-	layer_input, layer_output = example, []
-	for layer in network:
-		for neuron in layer:
-			# sum the weight with inputs
-			summ = summing_function(neuron, layer_input)
-			# activate the sum, append output to outputs
-			layer_output.append(activation_function(summ))
-		# inputs become outputs of previous layer
-		layer_input, layer_output = layer_output, []
-	return layer_input # return the final output
-
-def summing_function(weights, inputs):
-	"""Sums the synapse weights with inputs and bias.
-
-	Parameters:
-		weights : synaptic weights.
-		inputs : a vector of inputs.
-
-	Returns:
-		The aggregate of inputs times weights, plus bias.
-	"""
-	# bias is the final value in the weight vector
-	bias = weights[-1]
-	summ = 0.00 # to sum
-	for i in range(len(weights)-1):
-		# aggregate the weights with input values
-		summ += (weights[i] * float(inputs[i]))
-	return summ + bias
-
 def activation_function(z):
 	"""ReLU activation function.
 
@@ -227,73 +188,6 @@ def activation_function(z):
 		The neuron activation based on the summed output.
 	"""
 	return z if z >= 0 else 0.01 * z
-
-def performance_measure(network, data):
-	"""Measures accuracy of the network using classification error.
-
-	Parameters:
-		network : the network to test.
-		data : a set of data examples.
-
-	Returns:
-		A percentage of correct classifications.
-	"""
-	correct, total = 0, 0
-	for example in data:
-		# check to see if the network output matches target output
-		if check_output(network, example) == float(example[-1]):
-			correct += 1
-		total += 1
-	return 100*(correct / total)
-
-def check_output(network, example):
-	"""Compares network output to actual output.
-
-	Parameters:
-		network : the neural network.
-		example : an example of data.
-
-	Returns:
-		The class the example belongs to (based on network guess).
-	"""
-	output = feed_forward(network, example)
-	return output.index(max(output))
-
-def sse(actual, target):
-	"""Sum of Squared Error.
-
-	Parameters:
-		actual : network output.
-		target : example target output.
-
-	Returns:
-		The sum of squared error of the network for an example.
-	"""
-	summ = 0.00
-	for i in range(len(actual)):
-		summ += (actual[i] - target[i])**2
-	return summ
-
-def mse(network):
-	"""Mean Squared Error.
-
-	Parameters:
-		network : the neural network to test.
-	"""
-	training = TRAIN
-	summ = 0.00
-	# for each training example
-	for example in training:
-		# populate a target vector
-		target = [0 for _ in range(CLASSES)]
-		# denote correct classification
-		target[int(example[-1])] = 1
-		# get actual output by feeding example through network
-		actual = feed_forward(network, example)
-		# sum up the sum of squared error
-		summ += sse(actual, target)
-	# MSE is just sum(sse)/number of examples
-	return summ / len(training)
 
 if __name__ == '__main__':
 	# if executed from automation script
