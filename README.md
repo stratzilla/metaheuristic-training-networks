@@ -89,8 +89,6 @@ Left-to-right, top-to-bottom: Iris data set, Wheat Seeds data set, Wine data set
 
 You can see PSO-NN and GA-NN outperform BP-NN for Iris (of which an ANOVA test shows there is stochastic dominance), for Wheat Seeds there is no dominance between training methods, and the remaining two showing statistically significant difference in favor of BP-NN. This suggests PSO-NN is suitable for smaller problem sized whereas BP-NN is generally preferred for higher dimensional problems. GA-NN results suggest some promise but in practice it was found impractical for network training.
 
-These results are the average from the best thirty runs from a sample of fifty runs. One-off performance may differ, I just wanted a large sample size to aggregate.
-
 # Further Reading
 
 I wrote a <a href="https://github.com/stratzilla/reports/blob/master/mh-compare-document.pdf">paper</a> describing my experimental methodology and results in more detail. I also wrote three tutorials for implementing a <a href="https://github.com/stratzilla/neural-network-tutorial">BP-NN</a>, a <a href="https://github.com/stratzilla/genetic-neural-network-tutorial">GA-NN</a>, and a <a href="https://github.com/stratzilla/particle-neural-network-tutorial">PSO-NN</a>. The code found in this repository is more or less taken straight from these tutorials as I made the tutorials to prepare for my experimentation.
