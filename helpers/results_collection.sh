@@ -30,7 +30,7 @@ case $1 in
 			error="Data set \"$1\" not supported."
 		fi
 		printf "\n$error\n";
-		printf "\nExecute this script as:\n"; 
+		printf "\nExecute this script as:\n";
 		printf " $ ./results_collection.sh <data>\n";
 		printf "\nWhere available data sets (case-sensitive) are:\n";
 		printf " - \"iris\" for Iris data set\n";

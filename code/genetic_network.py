@@ -1,34 +1,20 @@
 #!/usr/bin/env python3
 
-import pandas as pd
-from math import ceil
-import matplotlib.pyplot as plt
-import random
 from sys import argv, exit
+from math import ceil
+import random
+import network_shared as shr
 import network_params as net
-
-def helper(e):
-	"""Helper function.
-	Outputs to console performance.
-	"""
-	if not AUTO:
-		err = MSE[-1]
-		tr = TRP[-1]
-		te = TEP[-1]
-		print(f'{e}, {err:.4f}, {tr:.2f}, {te:.2f}')
-	else:
-		err = MSE[-1]
-		print(f'{err:.4f}')
 
 class Chromosome:
 	"""Chromosome class.
 	Containerizes genes for chromosome.
-	
+
 	Attributes:
 		genes : the weights of the network.
 		fit : the fitness of the chromosome.
 	"""
-	
+
 	def __init__(self, genes, fit=None):
 		"""Chromosome constructor without fitness."""
 		# initialize weights from parameter
@@ -41,7 +27,7 @@ class Chromosome:
 			self.fit = mse(network)
 		else:
 			self.fit = fit
-	
+
 	def set_genes(self, genes):
 		"""Genes mutator method."""
 		self.genes = genes
@@ -49,11 +35,11 @@ class Chromosome:
 		# update the fitness
 		network = initialize_network(self.genes)
 		self.fit = mse(network)
-	
+
 	def get_genes(self):
 		"""Genes accessor method."""
 		return self.genes
-	
+
 	def get_fit(self):
 		"""Fitness accessor method."""
 		return self.fit
@@ -61,18 +47,18 @@ class Chromosome:
 	def __lt__(self, other):
 		"""Less-than operator overload."""
 		return self.fit < other.fit
-	
+
 	def __getitem__(self, key):
 		"""List index operator overload."""
 		return self.genes[key]
-	
+
 	def __len__(self):
 		"""List length operator overload."""
 		return len(self.genes)
 
 def genetic_network(el_p, to_p, dim, epochs, pop_size, cr, mr):
 	"""Genetic Neural Network training function.
-	
+
 	Parameters:
 		el_p : the proportion of elites
 		to_p : the proportion of tournament
@@ -81,7 +67,7 @@ def genetic_network(el_p, to_p, dim, epochs, pop_size, cr, mr):
 		pop_size : the population size.
 		cr : crossover rate.
 		mr : mutation rate.
-	
+
 	Returns:
 		A trained neural network.
 	"""
@@ -94,10 +80,12 @@ def genetic_network(el_p, to_p, dim, epochs, pop_size, cr, mr):
 		population.sort()
 		# get fitness of network
 		MSE.append(population[0].get_fit())
+		# network from chromosome
+		network = initialize_network(population[0].get_genes())
 		# training accuracy of network
-		TRP.append(performance_measure(population[0].get_genes(), TRAIN))
+		TRP.append(performance_measure(network, TRAIN))
 		# testing accuracy of network
-		TEP.append(performance_measure(population[0].get_genes(), TEST))
+		TEP.append(performance_measure(network, TEST))
 		mating_pool = [] # init mating pool
 		# get elites from population
 		elites = elite_selection(population, el_p)
@@ -110,18 +98,18 @@ def genetic_network(el_p, to_p, dim, epochs, pop_size, cr, mr):
 		# generate a new population based on mating pool
 		population = evolve(mating_pool, elites, pop_size, cr, mr)
 		mating_pool.clear() # clear mating pool for next gen
-		helper(e)
+		shr.helper(e, MSE, TRP, TEP, AUTO)
 
 def evolve(mating_pool, elites, pop_size, cr, mr):
 	"""Evolves population based on genetic operators.
-	
+
 	Parameters:
 		mating_pool : where to select parents from.
 		elites : previously found elites.
 		pop_size : the population size.
 		cr : crossover rate.
 		mr : mutation rate.
-	
+
 	Returns:
 		A new population of offspring from mating pool.
 	"""
@@ -150,12 +138,12 @@ def evolve(mating_pool, elites, pop_size, cr, mr):
 
 def crossover(parent_a, parent_b, cr):
 	"""Two-point crossover operator.
-	
+
 	Parameters:
 		parent_a : the first parent.
 		parent_b : the second parent.
 		cr : the crossover chance.
-	
+
 	Returns:
 		Two child chromosomes as a product of both parents.
 	"""
@@ -186,11 +174,11 @@ def crossover(parent_a, parent_b, cr):
 
 def mutation(child, mr):
 	"""Mutation operator.
-	
+
 	Parameters:
 		child : the chromosome to mutate.
 		mr : the mutation chance.
-	
+
 	Returns:
 		A mutated child.
 	"""
@@ -209,11 +197,11 @@ def mutation(child, mr):
 
 def initialize_population(size, dim):
 	"""Initializes a random population.
-	
+
 	Parameters:
 		size : the size of the population.
 		dim : the dimensionality of the problem
-	
+
 	Returns:
 		A random population of that many points.
 	"""
@@ -227,11 +215,11 @@ def initialize_population(size, dim):
 def elite_selection(population, percent):
 	"""Elite selection function.
 	Stores elites to bring into the next generation and mating pool.
-	
+
 	Parameters:
 		population : the population to take elites from.
 		percent : the proportion of the population to consider elites.
-	
+
 	Returns:
 		A list of elite solutions.
 	"""
@@ -240,15 +228,15 @@ def elite_selection(population, percent):
 	for i in range(ceil(len(population)*percent)):
 		elites.append(population[i]) # and append to elites
 	return elites
-	
+
 def tournament_selection(population, percent):
 	"""Tournament selection function.
 	Creates a tournament of random individuals and returns the best.
-	
+
 	Parameters:
 		population : the population to take tournament from.
 		percent : the proportion of the population who enters the tournament.
-	
+
 	Returns:
 		Best fit individual from tournament.
 	"""
@@ -262,10 +250,10 @@ def tournament_selection(population, percent):
 
 def initialize_network(c):
 	"""Neural network initializer.
-	
+
 	Parameters:
 		c : the chromosome to encode into the network.
-	
+
 	Returns:
 		The n-h-o neural network.
 	"""
@@ -280,11 +268,11 @@ def initialize_network(c):
 
 def feed_forward(network, example):
 	"""Feedforward method. Feeds data forward through network.
-	
+
 	Parameters:
 		network : the neural network.
 		example : an example of data to feed forward.
-	
+
 	Returns:
 		The output of the forward pass.
 	"""
@@ -301,11 +289,11 @@ def feed_forward(network, example):
 
 def summing_function(weights, inputs):
 	"""Sums the synapse weights with inputs and bias.
-	
+
 	Parameters:
 		weights : synaptic weights.
 		inputs : a vector of inputs.
-	
+
 	Returns:
 		The aggregate of inputs times weights, plus bias.
 	"""
@@ -319,25 +307,24 @@ def summing_function(weights, inputs):
 
 def activation_function(z):
 	"""ReLU activation function.
-	
+
 	Parameters:
 		z : summed output of neuron.
-	
+
 	Returns:
 		The neuron activation based on the summed output.
 	"""
 	return z if z >= 0 else 0.01 * z
 
-def performance_measure(chromosome, data):
+def performance_measure(network, data):
 	"""Measures accuracy of the network using classification error.
-	
+
 	Parameters:
-		chromosome : the chromosome to test.
+		network : the network to test.
 		data : a set of data examples.
 	Returns:
 		A percentage of correct classifications.
 	"""
-	network = initialize_network(chromosome)
 	correct, total = 0, 0
 	for example in data:
 		# check to see if the network output matches target output
@@ -348,10 +335,11 @@ def performance_measure(chromosome, data):
 
 def check_output(network, example):
 	"""Compares network output to actual output.
-	
+
 	Parameters:
 		network : the neural network.
 		example : an example of data.
+
 	Returns:
 		The class the example belongs to (based on network guess).
 	"""
@@ -360,11 +348,11 @@ def check_output(network, example):
 
 def sse(actual, target):
 	"""Sum of Squared Error.
-	
+
 	Parameters:
 		actual : network output.
 		target : example target output.
-	
+
 	Returns:
 		The sum of squared error of the network for an example.
 	"""
@@ -375,7 +363,7 @@ def sse(actual, target):
 
 def mse(network):
 	"""Mean Squared Error.
-	
+
 	Parameters:
 		network : the neural network to test.
 	"""
@@ -394,43 +382,6 @@ def mse(network):
 	# MSE is just sum(sse)/number of examples
 	return summ / len(training)
 
-def load_data(filename):
-	"""Loads CSV for splitting into training and testing data.
-	
-	Parameters:
-		filename : the filename of the file to load.
-	
-	Returns:
-		Two lists, each corresponding to training and testing data.
-	"""
-	# load into pandas dataframe
-	df = pd.read_csv(filename, header=None, dtype=float)
-	# normalize the data
-	for features in range(len(df.columns)-1):
-		df[features] = (df[features] - df[features].mean())/df[features].std()
-	train = df.sample(frac=0.70).fillna(0.00) # get training portion
-	test = df.drop(train.index).fillna(0.00) # remainder testing portion
-	return train.values.tolist(), test.values.tolist()
-
-def plot_data():
-	"""Plots data.
-	Displays MSE, training accuracy, and testing accuracy over time.
-	"""
-	x = range(0, EPOCHS)
-	fig, ax2 = plt.subplots()
-	ax2.set_xlabel('Epoch')
-	ax2.set_ylabel('MSE', color='blue')
-	line, = ax2.plot(x, MSE, '-', c='blue', lw='1', label='MSE')
-	ax1 = ax2.twinx()
-	ax1.set_ylabel('Accuracy (%)', color='green')
-	line2, = ax1.plot(x, TRP, '-', c='green', lw='1', label='Training')
-	line3, = ax1.plot(x, TEP, ':', c='green', lw='1', label='Testing')
-	fig.legend(loc='center')
-	ax1.set_ylim(0, 101)
-	plt.title(f'GA-NN ({argv[1]})')
-	plt.show()
-	plt.clf()
-
 if __name__ == '__main__':
 	# if executed from automation script
 	if len(argv) == 3:
@@ -438,7 +389,7 @@ if __name__ == '__main__':
 	else:
 		AUTO = False
 	MSE, TRP, TEP = [], [], []
-	TRAIN, TEST = load_data(f'../data/{argv[1]}.csv')
+	TRAIN, TEST = shr.load_data(f'../data/{argv[1]}.csv')
 	FEATURES = len(TRAIN[0][:-1])
 	CLASSES = len(list(set([c[-1] for c in (TRAIN+TEST)])))
 	HIDDEN_SIZE = net.get_hidden_size(argv[1])
@@ -451,5 +402,5 @@ if __name__ == '__main__':
 	genetic_network(ELITE_PROPORTION, TOURN_PROPORTION, \
 		CHROMOSOME_SIZE, EPOCHS, POP_SIZE, CROSS_RATE, MUTAT_RATE)
 	if not AUTO:
-		plot_data()
+		shr.plot_data(EPOCHS, MSE, TRP, TEP)
 	exit(0)

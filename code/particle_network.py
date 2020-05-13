@@ -1,28 +1,14 @@
 #!/usr/bin/env python3
 
-import pandas as pd
-import matplotlib.pyplot as plt
-import random
 from sys import argv, exit
+import random
+import network_shared as shr
 import network_params as net
-
-def helper(e):
-	"""Helper function.
-	Outputs to console performance.
-	"""
-	if not AUTO:
-		err = MSE[-1]
-		tr = TRP[-1]
-		te = TEP[-1]
-		print(f'{e}, {err:.4f}, {tr:.2f}, {te:.2f}')
-	else:
-		err = MSE[-1]
-		print(f'{err:.4f}')
 
 class Particle:
 	"""Particle class.
 	Containzerizes a position, velocity.
-	
+
 	Attributes:
 		pos : the position in n-space.
 		best_pos : the best position this particle has had.
@@ -30,7 +16,7 @@ class Particle:
 		best_fit : the best fitness this particle has had.
 		vel : the velocity in n-space.
 	"""
-	
+
 	def __init__(self, pos, vel):
 		"""Particle constructor."""
 		# initialize position and velocity as params
@@ -40,7 +26,7 @@ class Particle:
 		self.fit = mse(network)
 		# best so far is just initial
 		self.best_pos, self.best_fit = self.pos, self.fit
-	
+
 	def set_pos(self, pos):
 		"""Position mutator method."""
 		self.pos = pos
@@ -56,19 +42,19 @@ class Particle:
 				self.best_fit = self.fit
 				# update best position
 				self.best_pos = self.pos
-	
+
 	def set_vel(self, vel):
 		"""Velocity mutator method."""
 		self.vel = vel
-	
+
 	def get_pos(self):
 		"""Position accessor method."""
 		return self.pos
-	
+
 	def get_vel(self):
 		"""Velocity accessor method."""
 		return self.vel
-	
+
 	def get_best_pos(self):
 		"""Best position accessor method."""
 		return self.best_pos
@@ -80,7 +66,7 @@ class Particle:
 def pso(dim, epochs, swarm_size, ic, cc, sc):
 	"""Particle Network training function
 	Main driver for PSO algorithm
-	
+
 	Parameters:
 		dim : dimensionality of the problem.
 		epochs : how many iterations.
@@ -96,16 +82,18 @@ def pso(dim, epochs, swarm_size, ic, cc, sc):
 		# get swarm best fitness and position
 		swarm_best = get_swarm_best(swarm)
 		MSE.append(swarm_best[0]) # get error of network using swarm best
+		# network from swarm best
+		network = initialize_network(swarm_best[1])
 		# get classification error of network for training and test
-		TRP.append(performance_measure(swarm_best[1], TRAIN))
-		TEP.append(performance_measure(swarm_best[1], TEST))
+		TRP.append(performance_measure(network, TRAIN))
+		TEP.append(performance_measure(network, TEST))
 		# reposition particles based on PSO params
 		move_particles(swarm, dim, ic, cc, sc)
-		helper(e)
+		shr.helper(e, MSE, TRP, TEP, AUTO)
 
 def move_particles(swarm, dim, ic, cc, sc):
 	"""Particle movement function.
-	
+
 	Parameters:
 		swarm : the swarm to move.
 	"""
@@ -133,11 +121,11 @@ def move_particles(swarm, dim, ic, cc, sc):
 
 def initialize_swarm(size, dim):
 	"""Swarm initialization function.
-	
+
 	Parameters:
 		size : the size of our swarm.
 		dim : the dimensionality of the problem.
-	
+
 	Returns:
 		A random swarm of that many Particles.
 	"""
@@ -154,10 +142,10 @@ def initialize_swarm(size, dim):
 
 def get_swarm_best(swarm):
 	"""Finds the swarm best fitness and position.
-	
+
 	Parameters:
 		swarm : the swarm to search.
-		
+
 	Returns:
 		The swarm best fitness and swarm best position.
 	"""
@@ -174,10 +162,10 @@ def get_swarm_best(swarm):
 
 def initialize_network(p):
 	"""Neural network initializer.
-	
+
 	Parameters:
 		p : the particle to encode into the network.
-	
+
 	Returns:
 		The n-h-o neural network.
 	"""
@@ -192,11 +180,11 @@ def initialize_network(p):
 
 def feed_forward(network, example):
 	"""Feedforward method. Feeds data forward through network.
-	
+
 	Parameters:
 		network : the neural network.
 		example : an example of data to feed forward.
-	
+
 	Returns:
 		The output of the forward pass.
 	"""
@@ -213,11 +201,11 @@ def feed_forward(network, example):
 
 def summing_function(weights, inputs):
 	"""Sums the synapse weights with inputs and bias.
-	
+
 	Parameters:
 		weights : synaptic weights.
 		inputs : a vector of inputs.
-	
+
 	Returns:
 		The aggregate of inputs times weights, plus bias.
 	"""
@@ -231,25 +219,25 @@ def summing_function(weights, inputs):
 
 def activation_function(z):
 	"""ReLU activation function.
-	
+
 	Parameters:
 		z : summed output of neuron.
-	
+
 	Returns:
 		The neuron activation based on the summed output.
 	"""
 	return z if z >= 0 else 0.01 * z
 
-def performance_measure(particle, data):
+def performance_measure(network, data):
 	"""Measures accuracy of the network using classification error.
-	
+
 	Parameters:
-		particle : the particle to test.
+		network : the network to test.
 		data : a set of data examples.
+
 	Returns:
 		A percentage of correct classifications.
 	"""
-	network = initialize_network(particle)
 	correct, total = 0, 0
 	for example in data:
 		# check to see if the network output matches target output
@@ -260,10 +248,11 @@ def performance_measure(particle, data):
 
 def check_output(network, example):
 	"""Compares network output to actual output.
-	
+
 	Parameters:
 		network : the neural network.
 		example : an example of data.
+
 	Returns:
 		The class the example belongs to (based on network guess).
 	"""
@@ -272,11 +261,11 @@ def check_output(network, example):
 
 def sse(actual, target):
 	"""Sum of Squared Error.
-	
+
 	Parameters:
 		actual : network output.
 		target : example target output.
-	
+
 	Returns:
 		The sum of squared error of the network for an example.
 	"""
@@ -287,7 +276,7 @@ def sse(actual, target):
 
 def mse(network):
 	"""Mean Squared Error.
-	
+
 	Parameters:
 		network : the neural network to test.
 	"""
@@ -306,43 +295,6 @@ def mse(network):
 	# MSE is just sum(sse)/number of examples
 	return summ / len(training)
 
-def load_data(filename):
-	"""Loads CSV for splitting into training and testing data.
-	
-	Parameters:
-		filename : the filename of the file to load.
-	
-	Returns:
-		Two lists, each corresponding to training and testing data.
-	"""
-	# load into pandas dataframe
-	df = pd.read_csv(filename, header=None, dtype=float)
-	# normalize the data
-	for features in range(len(df.columns)-1):
-		df[features] = (df[features] - df[features].mean())/df[features].std()
-	train = df.sample(frac=0.70).fillna(0.00) # get training portion
-	test = df.drop(train.index).fillna(0.00) # remainder testing portion
-	return train.values.tolist(), test.values.tolist()
-
-def plot_data():
-	"""Plots data.
-	Displays MSE, training accuracy, and testing accuracy over time.
-	"""
-	x = range(0, EPOCHS)
-	fig, ax2 = plt.subplots()
-	ax2.set_xlabel('Epoch')
-	ax2.set_ylabel('MSE', color='blue')
-	line, = ax2.plot(x, MSE, '-', c='blue', lw='1', label='MSE')
-	ax1 = ax2.twinx()
-	ax1.set_ylabel('Accuracy (%)', color='green')
-	line2, = ax1.plot(x, TRP, '-', c='green', lw='1', label='Training')
-	line3, = ax1.plot(x, TEP, ':', c='green', lw='1', label='Testing')
-	fig.legend(loc='center')
-	ax1.set_ylim(0, 101)
-	plt.title(f'PSO-NN ({argv[1]})')
-	plt.show()
-	plt.clf()
-	
 if __name__ == '__main__':
 	# if executed from automation script
 	if len(argv) == 3:
@@ -350,7 +302,7 @@ if __name__ == '__main__':
 	else:
 		AUTO = False
 	MSE, TRP, TEP = [], [], []
-	TRAIN, TEST = load_data(f'../data/{argv[1]}.csv')
+	TRAIN, TEST = shr.load_data(f'../data/{argv[1]}.csv')
 	FEATURES = len(TRAIN[0][:-1])
 	CLASSES = len(list(set([c[-1] for c in (TRAIN+TEST)])))
 	HIDDEN_SIZE = net.get_hidden_size(argv[1])
@@ -361,5 +313,5 @@ if __name__ == '__main__':
 	W, C_1, C_2, BOUND = net.get_pso_params(argv[1])
 	pso(DIMENSIONS, EPOCHS, SWARM_SIZE, W, C_1, C_2)
 	if not AUTO:
-		plot_data()
+		shr.plot_data(EPOCHS, MSE, TRP, TEP)
 	exit(0)

@@ -1,24 +1,10 @@
 #!/usr/bin/env python3
 
-import random
-import pandas as pd
-import matplotlib.pyplot as plt
-from math import exp
 from sys import argv, exit
+from math import exp
+import random
+import network_shared as shr
 import network_params as net
-
-def helper(e):
-	"""Helper function.
-	Outputs to console performance.
-	"""
-	if not AUTO: # if results collection
-		err = MSE[-1]
-		tr = TRP[-1]
-		te = TEP[-1]
-		print(f'{e}, {err:.4f}, {tr:.2f}, {te:.2f}')
-	else: # normal execution
-		err = MSE[-1]
-		print(f'{err:.4f}')
 
 def stochastic_gradient_descent(network, classes, training_data):
 	"""Training function for neural network.
@@ -59,7 +45,7 @@ def stochastic_gradient_descent(network, classes, training_data):
 		MSE.append(total_error/len(training_data))
 		TRP.append(performance_measure(NETWORK, TRAIN))
 		TEP.append(performance_measure(NETWORK, TEST))
-		helper(e) # output to console
+		shr.helper(e, MSE, TRP, TEP, AUTO) # output to console
 
 def feed_forward(network, example):
 	"""Feedforward method. Feeds data forward through network.
@@ -77,11 +63,11 @@ def feed_forward(network, example):
 			# sum the weight with inputs
 			summ = summing_function(neuron['w'], layer_input)
 			# activate the sum, store output
-			neuron['o'] = activation_function(summ) 
+			neuron['o'] = activation_function(summ)
 			# append output to outputs
-			layer_output.append(neuron['o']) 
+			layer_output.append(neuron['o'])
 		# inputs become outputs of previous layer
-		layer_input, layer_output = layer_output, [] 
+		layer_input, layer_output = layer_output, []
 	return layer_input
 
 def backpropagate(network, example):
@@ -100,7 +86,7 @@ def backpropagate(network, example):
 			else: # if an inner layer
 				summ = 0.00
 				# error is the sum of neuron weights times their deltas
-				for neuron in network[i+1]: 
+				for neuron in network[i+1]:
 					summ += neuron['w'][j] * neuron['d']
 				err = summ
 			# delta is amount of correction
@@ -134,7 +120,7 @@ def update_weights(network, example, delta):
 			t = [neuron['o'] for neuron in network[i-1]]
 		else: # if first layer
 			t = example[:-1] # init t as the training example attributes
-		# for each neuron in layer; zip with a length of network variable 
+		# for each neuron in layer; zip with a length of network variable
 		# to access deltas
 		for neuron, d in zip(network[i], range(0, len(network[i]))):
 			for f in range(len(t)): # for each feature or output of t
@@ -153,7 +139,7 @@ def sse(actual, target):
 	Parameters:
 		actual : the actual output from the network.
 		target : the expected output from the network.
-		
+
 	Returns:
 		The sum squared error of the network for example.
 	"""
@@ -164,7 +150,7 @@ def sse(actual, target):
 
 def activation_function(z):
 	"""Logistic Sigmoid function.
-	
+
 	Parameters:
 		z : summed output of neuron.
 
@@ -256,50 +242,13 @@ def initialize_network(n, h, o):
 	neural_network.append([{'w':[r() for i in range(h+1)]} for j in range(o)])
 	return neural_network
 
-def load_data(filename):
-	"""Loads CSV for splitting into training and testing data.
-	
-	Parameters:
-		filename : the filename of the file to load.
-	
-	Returns:
-		Two lists, each corresponding to training and testing data.
-	"""
-	# load into pandas dataframe
-	df = pd.read_csv(filename, header=None, dtype=float)
-	# normalize the data
-	for features in range(len(df.columns)-1):
-		df[features] = (df[features] - df[features].mean())/df[features].std()
-	train = df.sample(frac=0.70).fillna(0.00) # get training portion
-	test = df.drop(train.index).fillna(0.00) # remainder testing portion
-	return train.values.tolist(), test.values.tolist()
-
-def plot_data():
-	"""Plots data.
-	Displays MSE, training accuracy, and testing accuracy over time.
-	"""
-	x = range(0, EPOCHS)
-	fig, ax2 = plt.subplots()
-	ax2.set_xlabel('Epoch')
-	ax2.set_ylabel('MSE', color='blue')
-	line, = ax2.plot(x, MSE, '-', c='blue', lw='1', label='MSE')
-	ax1 = ax2.twinx()
-	ax1.set_ylabel('Accuracy (%)', color='green')
-	line2, = ax1.plot(x, TRP, '-', c='green', lw='1', label='Training')
-	line3, = ax1.plot(x, TEP, ':', c='green', lw='1', label='Testing')
-	fig.legend(loc='center')
-	ax1.set_ylim(0, 101)
-	plt.title(f'BP-NN ({argv[1]})')
-	plt.show()
-	plt.clf()
-
 if __name__ == '__main__':
 	# if executed from automation script
 	if len(argv) == 3:
 		AUTO = bool(int(argv[2]))
 	else:
 		AUTO = False
-	TRAIN, TEST = load_data(f'../data/{argv[1]}.csv')
+	TRAIN, TEST = shr.load_data(f'../data/{argv[1]}.csv')
 	FEATURES = len(TRAIN[0][:-1])
 	CLASSES = len(list(set([c[-1] for c in (TRAIN+TEST)])))
 	HIDDEN_SIZE = net.get_hidden_size(argv[1])
@@ -309,5 +258,5 @@ if __name__ == '__main__':
 	MSE, TRP, TEP = [], [], []
 	stochastic_gradient_descent(NETWORK, CLASSES, TRAIN)
 	if not AUTO:
-		plot_data()
+		shr.plot_data(EPOCHS, MSE, TRP, TEP)
 	exit(0)
