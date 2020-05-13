@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 import random
-from sys import argv, exit
+import pandas as pd
+import matplotlib.pyplot as plt
 from math import exp
-import network_shared as shr
+from sys import argv, exit
 import network_params as net
 
 def helper(e):
@@ -46,7 +47,7 @@ def stochastic_gradient_descent(network, classes, training_data):
 			# get actual output from feed forward pass. Feeding forward will
 			# also initialize network neuron outputs to be used in backprop
 			actual = feed_forward(network, example)
-			total_error += shr.sse(actual, outputs) # aggregate error
+			total_error += sse(actual, outputs) # aggregate error
 			# perform backpropagation to propagate error through network
 			backpropagate(network, outputs)
 			# update weights based on network params and neuron contents
@@ -62,9 +63,11 @@ def stochastic_gradient_descent(network, classes, training_data):
 
 def feed_forward(network, example):
 	"""Feedforward method. Feeds data forward through network.
+
 	Parameters:
 		network : the neural network.
 		example : an example of data to feed forward.
+
 	Returns:
 		The output of the forward pass.
 	"""
@@ -72,7 +75,7 @@ def feed_forward(network, example):
 	for layer in network:
 		for neuron in layer:
 			# sum the weight with inputs
-			summ = shr.summing_function(neuron['w'], layer_input)
+			summ = summing_function(neuron['w'], layer_input)
 			# activate the sum, store output
 			neuron['o'] = activation_function(summ) 
 			# append output to outputs
@@ -143,6 +146,22 @@ def update_weights(network, example, delta):
 				# also update neural bias
 				neuron['w'][-1] += LEARNING_RATE * neuron['d']
 
+def sse(actual, target):
+	"""Sum Square Error loss function.
+	Determines error of network given an example.
+
+	Parameters:
+		actual : the actual output from the network.
+		target : the expected output from the network.
+		
+	Returns:
+		The sum squared error of the network for example.
+	"""
+	summ = 0.00
+	for i in range(len(actual)):
+		summ += (actual[i] - target[i])**2
+	return summ
+
 def activation_function(z):
 	"""Logistic Sigmoid function.
 	
@@ -164,6 +183,23 @@ def activation_derivative(z):
 		The differential of the neural output.
 	"""
 	return z * (1 - z)
+
+def summing_function(weights, inputs):
+	"""Sums the synapse weights with inputs and bias.
+
+	Parameters:
+		weights : synaptic weights.
+		inputs : a vector of inputs.
+
+	Returns:
+		The aggregate of inputs times weights, plus bias.
+	"""
+	bias = weights[-1] # bias is the final value in the weight vector
+	summ = 0.00 # to sum
+	for i in range(len(weights)-1):
+		# aggregate the weights with input values
+		summ += (weights[i] * float(inputs[i]))
+	return summ + bias
 
 def performance_measure(network, data):
 	"""Measures accuracy of the network using classification error.
@@ -220,13 +256,50 @@ def initialize_network(n, h, o):
 	neural_network.append([{'w':[r() for i in range(h+1)]} for j in range(o)])
 	return neural_network
 
+def load_data(filename):
+	"""Loads CSV for splitting into training and testing data.
+	
+	Parameters:
+		filename : the filename of the file to load.
+	
+	Returns:
+		Two lists, each corresponding to training and testing data.
+	"""
+	# load into pandas dataframe
+	df = pd.read_csv(filename, header=None, dtype=float)
+	# normalize the data
+	for features in range(len(df.columns)-1):
+		df[features] = (df[features] - df[features].mean())/df[features].std()
+	train = df.sample(frac=0.70).fillna(0.00) # get training portion
+	test = df.drop(train.index).fillna(0.00) # remainder testing portion
+	return train.values.tolist(), test.values.tolist()
+
+def plot_data():
+	"""Plots data.
+	Displays MSE, training accuracy, and testing accuracy over time.
+	"""
+	x = range(0, EPOCHS)
+	fig, ax2 = plt.subplots()
+	ax2.set_xlabel('Epoch')
+	ax2.set_ylabel('MSE', color='blue')
+	line, = ax2.plot(x, MSE, '-', c='blue', lw='1', label='MSE')
+	ax1 = ax2.twinx()
+	ax1.set_ylabel('Accuracy (%)', color='green')
+	line2, = ax1.plot(x, TRP, '-', c='green', lw='1', label='Training')
+	line3, = ax1.plot(x, TEP, ':', c='green', lw='1', label='Testing')
+	fig.legend(loc='center')
+	ax1.set_ylim(0, 101)
+	plt.title(f'BP-NN ({argv[1]})')
+	plt.show()
+	plt.clf()
+
 if __name__ == '__main__':
 	# if executed from automation script
 	if len(argv) == 3:
 		AUTO = bool(int(argv[2]))
 	else:
 		AUTO = False
-	TRAIN, TEST = shr.load_data(f'../data/{argv[1]}.csv')
+	TRAIN, TEST = load_data(f'../data/{argv[1]}.csv')
 	FEATURES = len(TRAIN[0][:-1])
 	CLASSES = len(list(set([c[-1] for c in (TRAIN+TEST)])))
 	HIDDEN_SIZE = net.get_hidden_size(argv[1])
@@ -236,5 +309,5 @@ if __name__ == '__main__':
 	MSE, TRP, TEP = [], [], []
 	stochastic_gradient_descent(NETWORK, CLASSES, TRAIN)
 	if not AUTO:
-		shr.plot_data(EPOCHS, MSE, TRP, TEP)
+		plot_data()
 	exit(0)
