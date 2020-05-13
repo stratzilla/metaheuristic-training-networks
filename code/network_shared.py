@@ -79,6 +79,39 @@ def sse(actual, target):
 		summ += (actual[i] - target[i])**2
 	return summ
 
+def performance_measure(network, data, act):
+	"""Measures accuracy of the network using classification error.
+	
+	Parameters:
+		network : the network to test.
+		data : a set of data examples.
+		act : the activation function.
+		
+	Returns:
+		A percentage of correct classifications.
+	"""
+	correct, total = 0, 0
+	for example in data:
+		# check to see if the network output matches target output
+		if check_output(network, example, act) == float(example[-1]):
+			correct += 1
+		total += 1
+	return 100*(correct / total)
+
+def check_output(network, example, act):
+	"""Compares network output to actual output.
+	
+	Parameters:
+		network : the neural network.
+		example : an example of data.
+		act : the activation function.
+		
+	Returns:
+		The class the example belongs to (based on network guess).
+	"""
+	output = feed_forward(network, example, act)
+	return output.index(max(output))
+
 def helper(auto, epoch, mse, trp, tep):
 	"""Helper function.
 	Outputs to console performance.

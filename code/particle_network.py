@@ -82,9 +82,11 @@ def pso(dim, epochs, swarm_size, ic, cc, sc):
 		# get swarm best fitness and position
 		swarm_best = get_swarm_best(swarm)
 		MSE.append(swarm_best[0]) # get error of network using swarm best
+		# network to get performance metrics on
+		network = initialize_network(swarm_best[1])
 		# get classification error of network for training and test
-		TRP.append(performance_measure(swarm_best[1], TRAIN))
-		TEP.append(performance_measure(swarm_best[1], TEST))
+		TRP.append(shr.performance_measure(network, TRAIN, activation_function))
+		TEP.append(shr.performance_measure(network, TEST, activation_function))
 		# reposition particles based on PSO params
 		move_particles(swarm, dim, ic, cc, sc)
 		shr.helper(AUTO, e, MSE, TRP, TEP)
@@ -186,38 +188,6 @@ def activation_function(z):
 		The neuron activation based on the summed output.
 	"""
 	return z if z >= 0 else 0.01 * z
-
-def performance_measure(particle, data):
-	"""Measures accuracy of the network using classification error.
-	
-	Parameters:
-		particle : the particle to test.
-		data : a set of data examples.
-		
-	Returns:
-		A percentage of correct classifications.
-	"""
-	network = initialize_network(particle)
-	correct, total = 0, 0
-	for example in data:
-		# check to see if the network output matches target output
-		if check_output(network, example) == float(example[-1]):
-			correct += 1
-		total += 1
-	return 100*(correct / total)
-
-def check_output(network, example):
-	"""Compares network output to actual output.
-	
-	Parameters:
-		network : the neural network.
-		example : an example of data.
-		
-	Returns:
-		The class the example belongs to (based on network guess).
-	"""
-	output = shr.feed_forward(network, example, activation_function)
-	return output.index(max(output))
 
 if __name__ == '__main__':
 	# if executed from automation script
