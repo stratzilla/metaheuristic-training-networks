@@ -10,6 +10,7 @@ set output "../results/plots/".res."-plot.png"
 # set parameters for MSE lines later
 set parametric
 set trange [0.005:0.030]
+set yrange [0.000:0.800]
 
 # set axis titles
 set xlabel "Epoch"
