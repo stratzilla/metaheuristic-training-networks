@@ -4,6 +4,7 @@ import random
 from sys import argv, exit
 from math import ceil
 import network_shared as shr
+import network_io_plot as io
 import network_params as net
 
 class Chromosome:
@@ -98,7 +99,7 @@ def genetic_network(el_p, to_p, dim, epochs, pop_size, cr, mr):
 		# generate a new population based on mating pool
 		population = evolve(mating_pool, elites, pop_size, cr, mr)
 		mating_pool.clear() # clear mating pool for next gen
-		shr.helper(AUTO, e, MSE, TRP, TEP)
+		io.out_console(AUTO, e, MSE, TRP, TEP)
 
 def evolve(mating_pool, elites, pop_size, cr, mr):
 	"""Evolves population based on genetic operators.
@@ -284,7 +285,7 @@ if __name__ == '__main__':
 	else:
 		AUTO = False
 	MSE, TRP, TEP = [], [], []
-	TRAIN, TEST = shr.load_data(f'../data/{argv[1]}.csv')
+	TRAIN, TEST = io.load_data(f'../data/{argv[1]}.csv')
 	FEATURES = len(TRAIN[0][:-1])
 	CLASSES = len(list(set([c[-1] for c in (TRAIN+TEST)])))
 	HIDDEN_SIZE = net.get_hidden_size(argv[1])
@@ -297,5 +298,5 @@ if __name__ == '__main__':
 	genetic_network(ELITE_PROPORTION, TOURN_PROPORTION, \
 		CHROMOSOME_SIZE, EPOCHS, POP_SIZE, CROSS_RATE, MUTAT_RATE)
 	if not AUTO:
-		shr.plot_data(EPOCHS, MSE, TRP, TEP)
+		io.plot_data(EPOCHS, MSE, TRP, TEP)
 	exit(0)

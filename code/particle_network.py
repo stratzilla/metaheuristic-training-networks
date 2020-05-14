@@ -3,6 +3,7 @@
 import random
 from sys import argv, exit
 import network_shared as shr
+import network_io_plot as io
 import network_params as net
 
 class Particle:
@@ -89,7 +90,7 @@ def pso(dim, epochs, swarm_size, ic, cc, sc):
 		TEP.append(shr.performance_measure(network, TEST, activation_function))
 		# reposition particles based on PSO params
 		move_particles(swarm, dim, ic, cc, sc)
-		shr.helper(AUTO, e, MSE, TRP, TEP)
+		io.out_console(AUTO, e, MSE, TRP, TEP)
 
 def move_particles(swarm, dim, ic, cc, sc):
 	"""Particle movement function.
@@ -196,7 +197,7 @@ if __name__ == '__main__':
 	else:
 		AUTO = False
 	MSE, TRP, TEP = [], [], []
-	TRAIN, TEST = shr.load_data(f'../data/{argv[1]}.csv')
+	TRAIN, TEST = io.load_data(f'../data/{argv[1]}.csv')
 	FEATURES = len(TRAIN[0][:-1])
 	CLASSES = len(list(set([c[-1] for c in (TRAIN+TEST)])))
 	HIDDEN_SIZE = net.get_hidden_size(argv[1])
@@ -207,5 +208,5 @@ if __name__ == '__main__':
 	W, C_1, C_2, BOUND = net.get_pso_params(argv[1])
 	pso(DIMENSIONS, EPOCHS, SWARM_SIZE, W, C_1, C_2)
 	if not AUTO:
-		shr.plot_data(EPOCHS, MSE, TRP, TEP)
+		io.plot_data(EPOCHS, MSE, TRP, TEP)
 	exit(0)

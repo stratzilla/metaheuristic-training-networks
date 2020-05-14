@@ -4,6 +4,7 @@ import random
 from sys import argv, exit
 from math import exp
 import network_shared as shr
+import network_io_plot as io
 import network_params as net
 
 def stochastic_gradient_descent(network, classes, training_data):
@@ -45,7 +46,7 @@ def stochastic_gradient_descent(network, classes, training_data):
 		MSE.append(total_error/len(training_data))
 		TRP.append(performance_measure(NETWORK, TRAIN))
 		TEP.append(performance_measure(NETWORK, TEST))
-		shr.helper(AUTO, e, MSE, TRP, TEP) # output to console
+		io.out_console(AUTO, e, MSE, TRP, TEP) # output to console
 
 def feed_forward(network, example):
 	"""Feedforward method. Feeds data forward through network.
@@ -213,7 +214,7 @@ if __name__ == '__main__':
 		AUTO = bool(int(argv[2]))
 	else:
 		AUTO = False
-	TRAIN, TEST = shr.load_data(f'../data/{argv[1]}.csv')
+	TRAIN, TEST = io.load_data(f'../data/{argv[1]}.csv')
 	FEATURES = len(TRAIN[0][:-1])
 	CLASSES = len(list(set([c[-1] for c in (TRAIN+TEST)])))
 	HIDDEN_SIZE = net.get_hidden_size(argv[1])
@@ -223,5 +224,5 @@ if __name__ == '__main__':
 	MSE, TRP, TEP = [], [], []
 	stochastic_gradient_descent(NETWORK, CLASSES, TRAIN)
 	if not AUTO:
-		shr.plot_data(EPOCHS, MSE, TRP, TEP)
+		io.plot_data(EPOCHS, MSE, TRP, TEP)
 	exit(0)
