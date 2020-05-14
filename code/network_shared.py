@@ -74,7 +74,7 @@ def sse(actual, target):
 		The sum of squared error of the network for an example.
 	"""
 	summ = 0.00
-	for i in range(len(actual)):
+	for i, _ in enumerate(actual):
 		summ += (actual[i] - target[i])**2
 	return summ
 

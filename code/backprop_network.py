@@ -7,14 +7,14 @@ import network_shared as net
 import network_io_plot as io
 import network_params as par
 
-def stochastic_gradient_descent(network, classes, training_data):
+def stochastic_gradient_descent(network, classes, training):
 	"""Training function for neural network.
 	Performs feed-forward, backpropagation, and update weight functions.
 
 	Parameters:
 		network : the neural network.
 		classes : the number of classes for the data.
-		training_data : data to train the network on.
+		training : data to train the network on.
 	"""
 	if not AUTO: # if normal execution
 		print('Epoch, MSE, Train. Acc%, Test Acc%')
@@ -23,7 +23,7 @@ def stochastic_gradient_descent(network, classes, training_data):
 		# training example, so skip that step later for first example
 		first_example = True
 		total_error = 0.00
-		for example in training_data:
+		for example in training:
 			# skip if not first example; keep track of prior example delta
 			temporal_delta = [neuron['d'] \
 				for layer in network for neuron in layer] \
@@ -39,11 +39,9 @@ def stochastic_gradient_descent(network, classes, training_data):
 			backpropagate(network, outputs)
 			# update weights based on network params and neuron contents
 			update_weights(network, example, temporal_delta)
-			# to not clobber neural outputs, reset them to zero
-			reset_neurons(network)
 			first_example = False # now we can consider momentum
 		# append results for this epoch to global lists to make plots
-		MSE.append(total_error/len(training_data))
+		MSE.append(total_error/len(TRAIN))
 		TRP.append(net.performance_measure(NETWORK, TRAIN, activation_function))
 		TEP.append(net.performance_measure(NETWORK, TEST, activation_function))
 		io.out_console(AUTO, e, MSE, TRP, TEP) # output to console
@@ -70,18 +68,6 @@ def backpropagate(network, example):
 			# delta is amount of correction
 			network[i][j]['d'] = activation_derivative(network[i][j]['o']) * err
 
-def reset_neurons(network):
-	"""Resets neural outputs to zero after each backprop pass.
-
-	Parameters:
-		network : the neural network.
-	"""
-	for layer in network:
-		for neuron in layer:
-			# we don't want to clobber the outputs later
-			# so reset after every example
-			neuron['o'] = 0
-
 def update_weights(network, example, delta):
 	"""Function to update network weights.
 
@@ -90,7 +76,7 @@ def update_weights(network, example, delta):
 		example : a training example.
 		delta : temporal delta.
 	"""
-	for i in range(len(network)): # for each layer in network
+	for i, _ in enumerate(network): # for each layer in network
 		# we update the weights in order of layers 0..n
 		# so we need either the example or the outputs of a layer
 		if i != 0: # if not first layer
@@ -98,10 +84,9 @@ def update_weights(network, example, delta):
 			t = [neuron['o'] for neuron in network[i-1]]
 		else: # if first layer
 			t = example[:-1] # init t as the training example attributes
-		# for each neuron in layer; zip with a length of network variable
-		# to access deltas
-		for neuron, d in zip(network[i], range(0, len(network[i]))):
-			for f in range(len(t)): # for each feature or output of t
+		# for each neuron in layer
+		for d, neuron in enumerate(network[i]):
+			for f, _ in enumerate(t): # for each feature or output of t
 				# update weight based on learning rate term
 				neuron['w'][f] += LEARNING_RATE * float(t[f]) * neuron['d']
 				if delta is not None: # if there is a temporal delta
@@ -140,7 +125,7 @@ if __name__ == '__main__':
 		AUTO = False
 	TRAIN, TEST = io.load_data(f'../data/{argv[1]}.csv')
 	FEATURES = len(TRAIN[0][:-1])
-	CLASSES = len(list(set([c[-1] for c in (TRAIN+TEST)])))
+	CLASSES = len({c[-1] for c in TRAIN+TEST})
 	HIDDEN_SIZE = par.get_hidden_size(argv[1])
 	DIMENSIONS = (HIDDEN_SIZE * (FEATURES+1)) + \
 		(CLASSES * (HIDDEN_SIZE+1))

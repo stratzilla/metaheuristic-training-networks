@@ -59,7 +59,7 @@ class Chromosome:
 		"""List length operator overload."""
 		return len(self.genes)
 
-def genetic_network(el_p, to_p, dim, epochs, pop_size, cr, mr):
+def genetic_network(el_p, to_p, dim, epochs, pop_size, cro_r, mut_r):
 	"""Genetic Neural Network training function.
 
 	Parameters:
@@ -68,8 +68,8 @@ def genetic_network(el_p, to_p, dim, epochs, pop_size, cr, mr):
 		dim : dimensionality of network.
 		epochs : how many generations to run.
 		pop_size : the population size.
-		cr : crossover rate.
-		mr : mutation rate.
+		cro_r : crossover rate.
+		mut_r : mutation rate.
 
 	Returns:
 		A trained neural network.
@@ -100,19 +100,19 @@ def genetic_network(el_p, to_p, dim, epochs, pop_size, cr, mr):
 		mating_pool.extend(elites)
 		mating_pool.append(t_winner)
 		# generate a new population based on mating pool
-		population = evolve(mating_pool, elites, pop_size, cr, mr)
+		population = evolve(mating_pool, elites, pop_size, cro_r, mut_r)
 		mating_pool.clear() # clear mating pool for next gen
 		io.out_console(AUTO, e, MSE, TRP, TEP)
 
-def evolve(mating_pool, elites, pop_size, cr, mr):
+def evolve(mating_pool, elites, pop_size, cro_r, mut_r):
 	"""Evolves population based on genetic operators.
 
 	Parameters:
 		mating_pool : where to select parents from.
 		elites : previously found elites.
 		pop_size : the population size.
-		cr : crossover rate.
-		mr : mutation rate.
+		cro_r : crossover rate.
+		mut_r : mutation rate.
 
 	Returns:
 		A new population of offspring from mating pool.
@@ -132,27 +132,27 @@ def evolve(mating_pool, elites, pop_size, cr, mr):
 		parent_a = mating_pool[p_a_idx]
 		parent_b = mating_pool[p_b_idx]
 		# find children using crossover
-		child_a, child_b = crossover(parent_a, parent_b, cr)
+		child_a, child_b = crossover(parent_a, parent_b, cro_r)
 		# mutate each child
-		child_a = mutation(child_a, mr)
-		child_b = mutation(child_b, mr)
+		child_a = mutation(child_a, mut_r)
+		child_b = mutation(child_b, mut_r)
 		# add children to population
 		new_population += [child_a, child_b]
 	return new_population
 
-def crossover(parent_a, parent_b, cr):
+def crossover(parent_a, parent_b, cro_r):
 	"""Two-point crossover operator.
 
 	Parameters:
 		parent_a : the first parent.
 		parent_b : the second parent.
-		cr : the crossover chance.
+		cro_r : the crossover chance.
 
 	Returns:
 		Two child chromosomes as a product of both parents.
 	"""
 	# only perform crossover based on the crossover rate
-	if random.uniform(0.00, 1.00) >= cr:
+	if random.uniform(0.00, 1.00) >= cro_r:
 		child_a = Chromosome(parent_a.get_genes(), parent_a.get_fit())
 		child_b = Chromosome(parent_b.get_genes(), parent_b.get_fit())
 		return child_a, child_b
@@ -161,7 +161,7 @@ def crossover(parent_a, parent_b, cr):
 	pivot_a = random.randint(1, len(parent_a)-1)
 	# second pivot is between pivot_a..n-1
 	pivot_b = random.randint(pivot_a, len(parent_a)-1)
-	for i in range(0, len(parent_a)):
+	for i, _ in enumerate(parent_a):
 		# before first pivot, use genes from one parent
 		if i < pivot_a:
 			genes_a.append(parent_a[i])
@@ -176,21 +176,21 @@ def crossover(parent_a, parent_b, cr):
 			genes_b.append(parent_b[i])
 	return Chromosome(genes_a), Chromosome(genes_b)
 
-def mutation(child, mr):
+def mutation(child, mut_r):
 	"""Mutation operator.
 
 	Parameters:
 		child : the chromosome to mutate.
-		mr : the mutation chance.
+		mut_r : the mutation chance.
 
 	Returns:
 		A mutated child.
 	"""
 	# the new genes to make
 	genes = [gene for gene in child.get_genes()]
-	for i in range(len(genes)):
+	for i, _ in enumerate(genes):
 		# only perform mutation based on the mutation rate
-		if random.uniform(0.00, 1.00) <= mr:
+		if random.uniform(0.00, 1.00) <= mut_r:
 			# update that axes with random position
 			genes[i] = random.gauss(mu=genes[i], sigma=(BASE + child.get_fit()))
 	# we don't need to update the fitness if the gene
@@ -246,7 +246,7 @@ def tournament_selection(population, percent):
 	"""
 	tournament = []
 	# grab percent% random individuals
-	for i in range(ceil(len(population)*percent)):
+	for _ in range(ceil(len(population)*percent)):
 		random_idx = random.randint(0, len(population)-1)
 		tournament.append(population.pop(random_idx)) # append to tournament
 	tournament.sort() # sort by fitness
@@ -272,7 +272,7 @@ if __name__ == '__main__':
 	MSE, TRP, TEP = [], [], []
 	TRAIN, TEST = io.load_data(f'../data/{argv[1]}.csv')
 	FEATURES = len(TRAIN[0][:-1])
-	CLASSES = len(list(set([c[-1] for c in (TRAIN+TEST)])))
+	CLASSES = len({c[-1] for c in TRAIN+TEST})
 	HIDDEN_SIZE = par.get_hidden_size(argv[1])
 	CHROMOSOME_SIZE = (HIDDEN_SIZE * (FEATURES+1)) + \
 		(CLASSES * (HIDDEN_SIZE+1))

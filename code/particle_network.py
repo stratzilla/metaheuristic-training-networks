@@ -66,7 +66,7 @@ class Particle:
 		"""Fitness accessor method."""
 		return self.fit
 
-def pso(dim, epochs, swarm_size, ic, cc, sc):
+def pso(dim, epochs, swarm_size, ine_c, cog_c, soc_c):
 	"""Particle Network training function
 	Main driver for PSO algorithm
 
@@ -74,9 +74,9 @@ def pso(dim, epochs, swarm_size, ic, cc, sc):
 		dim : dimensionality of the problem.
 		epochs : how many iterations.
 		swarm_size : how big a swarm is.
-		ic : inertial coefficient (omega).
-		cc : cognitive coefficient (c_1).
-		sc : social coefficient (c_2).
+		ine_c : inertial coefficient (omega).
+		cog_c : cognitive coefficient (c_1).
+		soc_c : social coefficient (c_2).
 	"""
 	if not AUTO:
 		print('Epoch, MSE, Train. Acc%, Test Acc%')
@@ -92,14 +92,18 @@ def pso(dim, epochs, swarm_size, ic, cc, sc):
 		TRP.append(net.performance_measure(network, TRAIN, activation_function))
 		TEP.append(net.performance_measure(network, TEST, activation_function))
 		# reposition particles based on PSO params
-		move_particles(swarm, dim, ic, cc, sc)
+		move_particles(swarm, dim, ine_c, cog_c, soc_c)
 		io.out_console(AUTO, e, MSE, TRP, TEP)
 
-def move_particles(swarm, dim, ic, cc, sc):
+def move_particles(swarm, dim, ine_c, cog_c, soc_c):
 	"""Particle movement function.
 
 	Parameters:
 		swarm : the swarm to move.
+		dim : dimensionality of each particle.
+		ine_c : inertial coefficient.
+		cog_c : cognitive coefficient.
+		soc_c : social coefficient.
 	"""
 	# get swarm bests
 	swarm_best = get_swarm_best(swarm)
@@ -110,10 +114,10 @@ def move_particles(swarm, dim, ic, cc, sc):
 		for d in range(dim): # for each axis
 			# this is split for readability but the update is based
 			# on an addition of a weight, cognitive, and social term
-			weight = ic * particle.get_vel()[d]
-			cognitive = cc * random.uniform(0.00, 1.00)
+			weight = ine_c * particle.get_vel()[d]
+			cognitive = cog_c * random.uniform(0.00, 1.00)
 			cognitive *= (particle.get_best_pos()[d] - particle.get_pos()[d])
-			social = sc * random.uniform(0.00, 1.00)
+			social = soc_c * random.uniform(0.00, 1.00)
 			social *= (swarm_best[1][d] - particle.get_pos()[d])
 			# new velocity is simply weight + cognitive + social
 			new_vel[d] = weight + cognitive + social
@@ -184,7 +188,7 @@ if __name__ == '__main__':
 	MSE, TRP, TEP = [], [], []
 	TRAIN, TEST = io.load_data(f'../data/{argv[1]}.csv')
 	FEATURES = len(TRAIN[0][:-1])
-	CLASSES = len(list(set([c[-1] for c in (TRAIN+TEST)])))
+	CLASSES = len({c[-1] for c in TRAIN+TEST})
 	HIDDEN_SIZE = par.get_hidden_size(argv[1])
 	DIMENSIONS = (HIDDEN_SIZE * (FEATURES+1)) + \
 		(CLASSES * (HIDDEN_SIZE+1))
