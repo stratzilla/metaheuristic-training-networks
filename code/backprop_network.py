@@ -3,9 +3,9 @@
 import random
 from sys import argv, exit
 from math import exp
-import network_shared as shr
+import network_shared as net
 import network_io_plot as io
-import network_params as net
+import network_params as par
 
 def stochastic_gradient_descent(network, classes, training_data):
 	"""Training function for neural network.
@@ -33,8 +33,8 @@ def stochastic_gradient_descent(network, classes, training_data):
 			outputs[int(example[-1])] = 1 # denote correct classification
 			# get actual output from feed forward pass. Feeding forward will
 			# also initialize network neuron outputs to be used in backprop
-			actual = feed_forward(network, example)
-			total_error += shr.sse(actual, outputs) # aggregate error
+			actual = net.feed_forward(network, example, activation_function)
+			total_error += net.sse(actual, outputs) # aggregate error
 			# perform backpropagation to propagate error through network
 			backpropagate(network, outputs)
 			# update weights based on network params and neuron contents
@@ -44,30 +44,9 @@ def stochastic_gradient_descent(network, classes, training_data):
 			first_example = False # now we can consider momentum
 		# append results for this epoch to global lists to make plots
 		MSE.append(total_error/len(training_data))
-		TRP.append(performance_measure(NETWORK, TRAIN))
-		TEP.append(performance_measure(NETWORK, TEST))
+		TRP.append(net.performance_measure(NETWORK, TRAIN, activation_function))
+		TEP.append(net.performance_measure(NETWORK, TEST, activation_function))
 		io.out_console(AUTO, e, MSE, TRP, TEP) # output to console
-
-def feed_forward(network, example):
-	"""Feedforward method. Feeds data forward through network.
-	Parameters:
-		network : the neural network.
-		example : an example of data to feed forward.
-	Returns:
-		The output of the forward pass.
-	"""
-	layer_input, layer_output = example, []
-	for layer in network:
-		for neuron in layer:
-			# sum the weight with inputs
-			summ = shr.summing_function(neuron['w'], layer_input)
-			# activate the sum, store output
-			neuron['o'] = activation_function(summ)
-			# append output to outputs
-			layer_output.append(neuron['o'])
-		# inputs become outputs of previous layer
-		layer_input, layer_output = layer_output, []
-	return layer_input
 
 def backpropagate(network, example):
 	"""Backpropagation function. Backpropagates error through network.
@@ -153,61 +132,6 @@ def activation_derivative(z):
 	"""
 	return z * (1 - z)
 
-def performance_measure(network, data):
-	"""Measures accuracy of the network using classification error.
-
-	Parameters:
-		network : the neural network.
-		data : a set of data examples.
-
-	Returns:
-		A percentage of correct classifications.
-	"""
-	correct, total = 0, 0
-	for example in data:
-		# check to see if the network output matches target output
-		if check_output(network, example) == float(example[-1]):
-			correct += 1
-		total += 1
-	return 100*(correct / total)
-
-def check_output(network, example):
-	"""Compares network output to actual output.
-
-	Parameters:
-		network : the neural network.
-		example : an example of data.
-
-	Returns:
-		The class the example belongs to (based on network guess).
-	"""
-	output = feed_forward(network, example)
-	return output.index(max(output))
-
-def initialize_network(n, h, o):
-	"""Neural network initializer.
-	The network will be structured as nested data structures, namely a list of
-	lists of dicts. As the algorithm continues, not only the weights will be
-	stored but also deltas, outputs, errors.
-
-	Parameters:
-		n : the number of input neurons.
-		h : the number of hidden neurons.
-		o : the number of output neurons.
-
-	Returns:
-		An n-h-o neural network as a list of list of dicts.
-	"""
-	def r(): # an inline function to generate randomly uniform numbers
-		return random.uniform(-0.50, 0.50)
-	neural_network = [] # initially an empty list
-	# there are (n * h) connections between input layer and hidden layer
-	# a 'w' will denote weights
-	neural_network.append([{'w':[r() for i in range(n+1)]} for j in range(h)])
-	# there are (h * o) connections between hidden layer and output layer
-	neural_network.append([{'w':[r() for i in range(h+1)]} for j in range(o)])
-	return neural_network
-
 if __name__ == '__main__':
 	# if executed from automation script
 	if len(argv) == 3:
@@ -217,10 +141,13 @@ if __name__ == '__main__':
 	TRAIN, TEST = io.load_data(f'../data/{argv[1]}.csv')
 	FEATURES = len(TRAIN[0][:-1])
 	CLASSES = len(list(set([c[-1] for c in (TRAIN+TEST)])))
-	HIDDEN_SIZE = net.get_hidden_size(argv[1])
-	NETWORK = initialize_network(FEATURES, HIDDEN_SIZE, CLASSES)
-	LEARNING_RATE, MOMENTUM_RATE = net.get_bp_params(argv[1])
-	EPOCHS = net.get_epochs()
+	HIDDEN_SIZE = par.get_hidden_size(argv[1])
+	DIMENSIONS = (HIDDEN_SIZE * (FEATURES+1)) + \
+		(CLASSES * (HIDDEN_SIZE+1))
+	WEIGHTS = [random.uniform(-0.50, 0.50) for _ in range(DIMENSIONS)]
+	NETWORK = net.initialize_network(WEIGHTS, FEATURES, HIDDEN_SIZE, CLASSES)
+	LEARNING_RATE, MOMENTUM_RATE = par.get_bp_params(argv[1])
+	EPOCHS = par.get_epochs()
 	MSE, TRP, TEP = [], [], []
 	stochastic_gradient_descent(NETWORK, CLASSES, TRAIN)
 	if not AUTO:

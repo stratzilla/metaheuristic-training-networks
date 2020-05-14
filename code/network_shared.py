@@ -13,12 +13,14 @@ def feed_forward(network, example, act):
 	for layer in network:
 		for neuron in layer:
 			# sum the weight with inputs
-			summ = summing_function(neuron, layer_input)
-			# activate the sum, append output to outputs
-			layer_output.append(act(summ))
+			summ = summing_function(neuron['w'], layer_input)
+			# activate the sum, store output
+			neuron['o'] = act(summ)
+			# append output to outputs
+			layer_output.append(neuron['o'])
 		# inputs become outputs of previous layer
 		layer_input, layer_output = layer_output, []
-	return layer_input # return the final output
+	return layer_input
 
 def summing_function(weights, inputs):
 	"""Sums the synapse weights with inputs and bias.
@@ -108,3 +110,29 @@ def check_output(network, example, act):
 	"""
 	output = feed_forward(network, example, act)
 	return output.index(max(output))
+
+def initialize_network(weights, n, h, o):
+	"""Neural network initializer.
+	The network will be structured as nested data structures, namely a list of
+	lists of dicts. As the algorithm continues, not only the weights will be
+	stored but also deltas, outputs, errors.
+
+	Parameters:
+		weights : the weights to initialize network as.
+		n : the number of input neurons.
+		h : the number of hidden neurons.
+		o : the number of output neurons.
+
+	Returns:
+		An n-h-o neural network as a list of list of dicts.
+	"""
+	w = iter(weights)
+	neural_network = [] # initially an empty list
+	# there are (n * h) connections between input layer and hidden layer
+	# a 'w' will denote weights
+	neural_network.append([{'w':[next(w) for i in range(n+1)]} \
+		for j in range(h)])
+	# there are (h * o) connections between hidden layer and output layer
+	neural_network.append([{'w':[next(w) for i in range(h+1)]} \
+		for j in range(o)])
+	return neural_network

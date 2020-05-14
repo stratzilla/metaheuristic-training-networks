@@ -3,9 +3,9 @@
 import random
 from sys import argv, exit
 from math import ceil
-import network_shared as shr
+import network_shared as net
 import network_io_plot as io
-import network_params as net
+import network_params as par
 
 class Chromosome:
 	"""Chromosome class.
@@ -24,8 +24,9 @@ class Chromosome:
 		# take fitness from genes argument
 		# else init as fit argument
 		if fit is None:
-			network = initialize_network(self.genes)
-			self.fit = shr.mse(network, CLASSES, TRAIN, activation_function)
+			network = net.initialize_network(self.genes, FEATURES, \
+				HIDDEN_SIZE, CLASSES)
+			self.fit = net.mse(network, CLASSES, TRAIN, activation_function)
 		else:
 			self.fit = fit
 
@@ -34,8 +35,9 @@ class Chromosome:
 		self.genes = genes
 		# when setting genes subsequent times
 		# update the fitness
-		network = initialize_network(self.genes)
-		self.fit = shr.mse(network, CLASSES, TRAIN, activation_function)
+		network = net.initialize_network(self.genes, FEATURES, \
+			HIDDEN_SIZE, CLASSES)
+		self.fit = net.mse(network, CLASSES, TRAIN, activation_function)
 
 	def get_genes(self):
 		"""Genes accessor method."""
@@ -82,11 +84,12 @@ def genetic_network(el_p, to_p, dim, epochs, pop_size, cr, mr):
 		# get fitness of network
 		MSE.append(population[0].get_fit())
 		# make network to get performance metrics
-		network = initialize_network(population[0].get_genes());
+		network = net.initialize_network(population[0].get_genes(), \
+			FEATURES, HIDDEN_SIZE, CLASSES)
 		# training accuracy of network
-		TRP.append(shr.performance_measure(network, TRAIN, activation_function))
+		TRP.append(net.performance_measure(network, TRAIN, activation_function))
 		# testing accuracy of network
-		TEP.append(shr.performance_measure(network, TEST, activation_function))
+		TEP.append(net.performance_measure(network, TEST, activation_function))
 		mating_pool = [] # init mating pool
 		# get elites from population
 		elites = elite_selection(population, el_p)
@@ -249,24 +252,6 @@ def tournament_selection(population, percent):
 	tournament.sort() # sort by fitness
 	return tournament[0] # return best fit from tournament
 
-def initialize_network(c):
-	"""Neural network initializer.
-
-	Parameters:
-		c : the chromosome to encode into the network.
-
-	Returns:
-		The n-h-o neural network.
-	"""
-	n, h, o = FEATURES, HIDDEN_SIZE, CLASSES
-	chr = iter(c) # make iterator from c
-	neural_network = [] # initially an empty list
-	# there are (n * h) connections between input layer and hidden layer
-	neural_network.append([[next(chr) for i in range(n+1)] for j in range(h)])
-	# there are (h * o) connections between hidden layer and output layer
-	neural_network.append([[next(chr) for i in range(h+1)] for j in range(o)])
-	return neural_network
-
 def activation_function(z):
 	"""ReLU activation function.
 
@@ -288,13 +273,13 @@ if __name__ == '__main__':
 	TRAIN, TEST = io.load_data(f'../data/{argv[1]}.csv')
 	FEATURES = len(TRAIN[0][:-1])
 	CLASSES = len(list(set([c[-1] for c in (TRAIN+TEST)])))
-	HIDDEN_SIZE = net.get_hidden_size(argv[1])
+	HIDDEN_SIZE = par.get_hidden_size(argv[1])
 	CHROMOSOME_SIZE = (HIDDEN_SIZE * (FEATURES+1)) + \
 		(CLASSES * (HIDDEN_SIZE+1))
-	POP_SIZE = net.get_population_size()
+	POP_SIZE = par.get_population_size()
 	CROSS_RATE, MUTAT_RATE, ELITE_PROPORTION, \
-		TOURN_PROPORTION, BASE = net.get_ga_params(argv[1])
-	EPOCHS = net.get_epochs()
+		TOURN_PROPORTION, BASE = par.get_ga_params(argv[1])
+	EPOCHS = par.get_epochs()
 	genetic_network(ELITE_PROPORTION, TOURN_PROPORTION, \
 		CHROMOSOME_SIZE, EPOCHS, POP_SIZE, CROSS_RATE, MUTAT_RATE)
 	if not AUTO:

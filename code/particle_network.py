@@ -2,9 +2,9 @@
 
 import random
 from sys import argv, exit
-import network_shared as shr
+import network_shared as net
 import network_io_plot as io
-import network_params as net
+import network_params as par
 
 class Particle:
 	"""Particle class.
@@ -23,8 +23,9 @@ class Particle:
 		# initialize position and velocity as params
 		self.pos, self.vel = pos, vel
 		# find fitness at instantiation
-		network = initialize_network(self.pos)
-		self.fit = shr.mse(network, CLASSES, TRAIN, activation_function)
+		network = net.initialize_network(self.pos, FEATURES, \
+			HIDDEN_SIZE, CLASSES)
+		self.fit = net.mse(network, CLASSES, TRAIN, activation_function)
 		# best so far is just initial
 		self.best_pos, self.best_fit = self.pos, self.fit
 
@@ -34,8 +35,9 @@ class Particle:
 		if not any(p < -BOUND for p in pos)\
 		and not any(p > BOUND for p in pos):
 			# get fitness of new position
-			network = initialize_network(self.pos)
-			fitness = shr.mse(network, CLASSES, TRAIN, activation_function)
+			network = net.initialize_network(self.pos, FEATURES, \
+				HIDDEN_SIZE, CLASSES)
+			fitness = net.mse(network, CLASSES, TRAIN, activation_function)
 			# if better
 			if fitness < self.best_fit:
 				self.fit = fitness
@@ -84,10 +86,11 @@ def pso(dim, epochs, swarm_size, ic, cc, sc):
 		swarm_best = get_swarm_best(swarm)
 		MSE.append(swarm_best[0]) # get error of network using swarm best
 		# network to get performance metrics on
-		network = initialize_network(swarm_best[1])
+		network = net.initialize_network(swarm_best[1], FEATURES, \
+			HIDDEN_SIZE, CLASSES)
 		# get classification error of network for training and test
-		TRP.append(shr.performance_measure(network, TRAIN, activation_function))
-		TEP.append(shr.performance_measure(network, TEST, activation_function))
+		TRP.append(net.performance_measure(network, TRAIN, activation_function))
+		TEP.append(net.performance_measure(network, TEST, activation_function))
 		# reposition particles based on PSO params
 		move_particles(swarm, dim, ic, cc, sc)
 		io.out_console(AUTO, e, MSE, TRP, TEP)
@@ -161,24 +164,6 @@ def get_swarm_best(swarm):
 			best_pos = particle.get_pos()
 	return best_fit, best_pos
 
-def initialize_network(p):
-	"""Neural network initializer.
-
-	Parameters:
-		p : the particle to encode into the network.
-
-	Returns:
-		The n-h-o neural network.
-	"""
-	n, h, o = FEATURES, HIDDEN_SIZE, CLASSES
-	part = iter(p) # make iterator from p
-	neural_network = [] # initially an empty list
-	# there are (n * h) connections between input layer and hidden layer
-	neural_network.append([[next(part) for i in range(n+1)] for j in range(h)])
-	# there are (h * o) connections between hidden layer and output layer
-	neural_network.append([[next(part) for i in range(h+1)] for j in range(o)])
-	return neural_network
-
 def activation_function(z):
 	"""ReLU activation function.
 
@@ -200,12 +185,12 @@ if __name__ == '__main__':
 	TRAIN, TEST = io.load_data(f'../data/{argv[1]}.csv')
 	FEATURES = len(TRAIN[0][:-1])
 	CLASSES = len(list(set([c[-1] for c in (TRAIN+TEST)])))
-	HIDDEN_SIZE = net.get_hidden_size(argv[1])
+	HIDDEN_SIZE = par.get_hidden_size(argv[1])
 	DIMENSIONS = (HIDDEN_SIZE * (FEATURES+1)) + \
 		(CLASSES * (HIDDEN_SIZE+1))
-	SWARM_SIZE = net.get_swarm_size()
-	EPOCHS = net.get_epochs()
-	W, C_1, C_2, BOUND = net.get_pso_params(argv[1])
+	SWARM_SIZE = par.get_swarm_size()
+	EPOCHS = par.get_epochs()
+	W, C_1, C_2, BOUND = par.get_pso_params(argv[1])
 	pso(DIMENSIONS, EPOCHS, SWARM_SIZE, W, C_1, C_2)
 	if not AUTO:
 		io.plot_data(EPOCHS, MSE, TRP, TEP)
