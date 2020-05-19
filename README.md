@@ -4,16 +4,23 @@ This repository was used for a comparative study between backpropagation trained
 
 I was interested in using PSO to train a neural network and decided to compare it, along with GA, to BP. Results are interesting: PSO-NN works very well for smaller data but BP-NN is the clear winner in higher dimensional data. GA-NN was found to be impractical or inefficient for training irrespective of problem size likely due to genetic algorithms being unoptimized for continuous data like this.
 
+I wrote a <a href="https://github.com/stratzilla/reports/blob/master/mh-compare-document.pdf">paper</a> describing my experimental methodology and results in more detail. I also wrote three tutorials for implementing a <a href="https://github.com/stratzilla/neural-network-tutorial">BP-NN</a>, a <a href="https://github.com/stratzilla/genetic-neural-network-tutorial">GA-NN</a>, and a <a href="https://github.com/stratzilla/particle-neural-network-tutorial">PSO-NN</a>. The code found in this repository is more or less taken straight from these tutorials as I made the tutorials to prepare for my experimentation.
+
 # Dependencies
 
-- Python 3.6
 - GNU/Linux
-- gnuplot
-- X11 or similar
+- Python 3.6
 - `pandas`
+
+`pandas` is used to load and normalize input data and is necessary to reproduce the results found here. It can, however, be rewritten using Python standard libraries if you so desire.
+
+## Optional Dependencies
+
+- X11 or similar
+- `gnuplot`
 - `matplotlib`
 
-`pandas` is used to load and normalize input data but can be omitted if you do not wish to meet that dependency: it can be rewritten using standard Python modules. `matplotlib` is also optional as you do not need to make a plot upon execution end: results are also output to console. `gnuplot` is only necessary using automation scripts as included.
+On execution, the mean squared error of the network as well as training/testing accuracy is outputted to console. Optionally, `matplotlib` is used to generate a plot showing these results visually. If `matplotlib` is not met, no plot will be made. `gnuplot` is necessary for the automated results collection script (but not normal execution). Both require X11 or similar windowing system.
 
 # Execution
 
@@ -88,7 +95,3 @@ You can see CSV results in `/results` or for a visualization of mean squared err
 Left-to-right, top-to-bottom: Iris data set, Wheat Seeds data set, Wine data set, Breast Cancer data set. Curve is mean squared error per epoch and the tick at the bottom is the epoch in which training reached a termination condition (MSE <= 0.1).
 
 You can see PSO-NN and GA-NN outperform BP-NN for Iris (of which an ANOVA test shows there is stochastic dominance), for Wheat Seeds there is no dominance between training methods, and the remaining two showing statistically significant difference in favor of BP-NN. This suggests PSO-NN is suitable for smaller problem sized whereas BP-NN is generally preferred for higher dimensional problems. GA-NN results suggest some promise but in practice it was found impractical for network training.
-
-# Further Reading
-
-I wrote a <a href="https://github.com/stratzilla/reports/blob/master/mh-compare-document.pdf">paper</a> describing my experimental methodology and results in more detail. I also wrote three tutorials for implementing a <a href="https://github.com/stratzilla/neural-network-tutorial">BP-NN</a>, a <a href="https://github.com/stratzilla/genetic-neural-network-tutorial">GA-NN</a>, and a <a href="https://github.com/stratzilla/particle-neural-network-tutorial">PSO-NN</a>. The code found in this repository is more or less taken straight from these tutorials as I made the tutorials to prepare for my experimentation.
