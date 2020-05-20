@@ -27,7 +27,7 @@ On execution, the mean squared error of the network as well as training/testing 
 You can clone this repository to your computer like so:
 
 ```bash
- $ git clone https://www.github.com/stratzilla/metaheuristic-training-networks`
+ $ git clone https://www.github.com/stratzilla/metaheuristic-training-networks
 ```
 
 You can run any of the training scripts in `/code` like so:
