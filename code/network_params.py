@@ -21,6 +21,16 @@ def get_hidden_size(data_used):
 		hidden_layer_size = 8
 	return hidden_layer_size
 
+def get_holdout():
+	training_portion = 0.70
+	# testing portion will be adjusted as 1 - training_portion
+	return training_portion
+
+def get_rand_range():
+	rand_min = -0.50
+	rand_max = 0.50
+	return rand_min, rand_max
+
 """
 BP-NN Specific Parameters
 """

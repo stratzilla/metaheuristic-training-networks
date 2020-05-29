@@ -211,7 +211,10 @@ def initialize_population(size, dim):
 	"""
 	population = [] # population stored as a list
 	for _ in range(size): # for the size of the population
-		genes = [random.uniform(-0.50, 0.50) for _ in range(dim)] # random genes
+		# get random initial weight range
+		rand_min, rand_max = par.get_rand_range()
+		# randomly uniform genes
+		genes = [random.uniform(rand_min, rand_max) for _ in range(dim)]
 		chromosome = Chromosome(genes) # create the chromosome
 		population.append(chromosome) # add to population
 	return population

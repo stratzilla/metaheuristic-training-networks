@@ -139,8 +139,10 @@ def initialize_swarm(size, dim):
 	"""
 	swarm = [] # swarm stored as list
 	for _ in range(size): # for the size of the swarm
+		# get random initial weight range
+		rand_min, rand_max = par.get_rand_range()
 		# position is random in every dimension
-		position = [random.uniform(-0.50, 0.50) for _ in range(dim)]
+		position = [random.uniform(rand_min, rand_max) for _ in range(dim)]
 		# velocity is initially zero in every dimension
 		velocity = [0 for _ in range(dim)]
 		# init a particle

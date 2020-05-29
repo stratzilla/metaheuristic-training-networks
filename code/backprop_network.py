@@ -129,7 +129,8 @@ if __name__ == '__main__':
 	HIDDEN_SIZE = par.get_hidden_size(argv[1])
 	DIMENSIONS = (HIDDEN_SIZE * (FEATURES+1)) + \
 		(CLASSES * (HIDDEN_SIZE+1))
-	WEIGHTS = [random.uniform(-0.50, 0.50) for _ in range(DIMENSIONS)]
+	WEIGHTS = [random.uniform(par.get_rand_range()[0], par.get_rand_range()[1])\
+		for _ in range(DIMENSIONS)]
 	NETWORK = net.initialize_network(WEIGHTS, FEATURES, HIDDEN_SIZE, CLASSES)
 	LEARNING_RATE, MOMENTUM_RATE = par.get_bp_params(argv[1])
 	EPOCHS = par.get_epochs()
