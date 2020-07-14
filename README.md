@@ -2,7 +2,7 @@
 
 This repository was used for a comparative study between backpropagation trained feed forward networks and the same using genetic algorithms and particle swarm optimization in lieu of backpropagation.
 
-I was interested in using PSO to train a neural network and decided to compare it, along with GA, to BP. Results are interesting: PSO-NN works very well for smaller data but BP-NN is the clear winner in higher dimensional data. GA-NN was found to be impractical or inefficient for training irrespective of problem size likely due to genetic algorithms being unoptimized for continuous data like this.
+I was interested in using PSO to train a neural network and decided to compare it, along with GA, to BP. Results are interesting: PSO-NN works very well for smaller data but BP-NN is the clear winner in higher dimensional data. GA-NN was found to be impractical or inefficient for training irrespective of problem size likely due to genetic algorithms being unoptimized for continuous data.
 
 I wrote a <a href="https://github.com/stratzilla/reports/blob/master/mh-compare-document.pdf">paper</a> describing my experimental methodology and results in more detail. I also wrote three tutorials for implementing a <a href="https://github.com/stratzilla/neural-network-tutorial">BP-NN</a>, a <a href="https://github.com/stratzilla/genetic-neural-network-tutorial">GA-NN</a>, and a <a href="https://github.com/stratzilla/particle-neural-network-tutorial">PSO-NN</a>. The code found in this repository is more or less taken straight from these tutorials as I made the tutorials to prepare for my experimentation.
 
