@@ -1,4 +1,4 @@
-# Comparative Study of Metaheuristic Training Networks
+# Metaheuristic Training Networks
 
 This repository was used for a comparative study between backpropagation trained feed forward networks and the same using various metaheuristics in place of backpropagation. I was interested in using PSO to train a neural network and decided to compare it to BP, and it lead to implementing more metaheuristics.
 
