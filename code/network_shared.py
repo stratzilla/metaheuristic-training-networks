@@ -1,3 +1,5 @@
+from random import uniform
+
 def feed_forward(network, example, act):
 	"""Feedforward method. Feeds data forward through network.
 
@@ -110,6 +112,26 @@ def check_output(network, example, act):
 	"""
 	output = feed_forward(network, example, act)
 	return output.index(max(output))
+
+def initialize_population(agent_type, size, dim, axis_range):
+	"""Initializes a random population.
+
+	Parameters:
+		agent_type : the type of agent to initialize a population of.
+		size : the size of the population.
+		dim : the dimensionality of the problem.
+		axis_range : the minimum and maximum value an axis can be.
+
+	Returns:
+		A random population of that many agents.
+	"""
+	population = [] # population stored as a list
+	for _ in range(size): # for the size of the population
+		# randomly uniform position in all axes
+		pos = [uniform(axis_range[0], axis_range[1]) for _ in range(dim)]
+		agent = agent_type(pos) # create new agent from position
+		population.append(agent) # append to population
+	return population
 
 def initialize_network(weights, n, h, o):
 	"""Neural network initializer.

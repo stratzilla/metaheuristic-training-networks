@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import random
+from random import randint, randrange, gauss, uniform
 from sys import argv, exit
 from math import ceil
 import network_shared as net
@@ -59,8 +59,9 @@ class Chromosome:
 		"""List length operator overload."""
 		return len(self.genes)
 
-def genetic_network(el_p, to_p, dim, epochs, pop_size, cro_r, mut_r):
+def genetic_algorithm(el_p, to_p, dim, epochs, pop_size, axis_range, c_r, m_r):
 	"""Genetic Neural Network training function.
+	Main driver for the GA optimization of network weights.
 
 	Parameters:
 		el_p : the proportion of elites
@@ -68,21 +69,18 @@ def genetic_network(el_p, to_p, dim, epochs, pop_size, cro_r, mut_r):
 		dim : dimensionality of network.
 		epochs : how many generations to run.
 		pop_size : the population size.
-		cro_r : crossover rate.
-		mut_r : mutation rate.
-
-	Returns:
-		A trained neural network.
+		axis_range : the minimum and maximum value an axis may be.
+		c_r : crossover rate.
+		m_r : mutation rate.
 	"""
 	if not AUTO:
 		print('Epoch, MSE, Train. Acc%, Test Acc%')
 	# initialize network as initially random
-	population = initialize_population(pop_size, dim)
+	population = net.initialize_population(Chromosome, pop_size, dim, \
+		axis_range)
 	for e in range(1, epochs+1):
-		# sort the population by fitness
-		population.sort()
-		# get fitness of network
-		MSE.append(population[0].get_fit())
+		population.sort() # sort the population by fitness
+		MSE.append(population[0].get_fit()) # get fitness of best network
 		# make network to get performance metrics
 		network = net.initialize_network(population[0].get_genes(), \
 			FEATURES, HIDDEN_SIZE, CLASSES)
@@ -91,8 +89,7 @@ def genetic_network(el_p, to_p, dim, epochs, pop_size, cro_r, mut_r):
 		# testing accuracy of network
 		TEP.append(net.performance_measure(network, TEST, activation_function))
 		mating_pool = [] # init mating pool
-		# get elites from population
-		elites = elite_selection(population, el_p)
+		elites = elite_selection(population, el_p) # get elites from population
 		del population[:len(elites)] # remove elites
 		# find tournament and winner
 		t_winner = tournament_selection(population, to_p)
@@ -100,7 +97,7 @@ def genetic_network(el_p, to_p, dim, epochs, pop_size, cro_r, mut_r):
 		mating_pool.extend(elites)
 		mating_pool.append(t_winner)
 		# generate a new population based on mating pool
-		population = evolve(mating_pool, elites, pop_size, cro_r, mut_r)
+		population = evolve(mating_pool, elites, pop_size, c_r, m_r)
 		mating_pool.clear() # clear mating pool for next gen
 		io.out_console(AUTO, e, MSE, TRP, TEP)
 
@@ -121,8 +118,8 @@ def evolve(mating_pool, elites, pop_size, cro_r, mut_r):
 	new_population += elites # add elites verbatim
 	while len(new_population) < pop_size: # while population isn't at max size
 		# get both parents indices
-		p_a_idx = random.randrange(len(mating_pool))
-		p_b_idx = random.randrange(len(mating_pool))
+		p_a_idx = randrange(len(mating_pool))
+		p_b_idx = randrange(len(mating_pool))
 		# we don't mind parents having identical genes but we don't
 		# want the parents to use the same index. Parent A can be
 		# equal to Parent B, but Parent A cannot be Parent B
@@ -152,15 +149,15 @@ def crossover(parent_a, parent_b, cro_r):
 		Two child chromosomes as a product of both parents.
 	"""
 	# only perform crossover based on the crossover rate
-	if random.uniform(0.00, 1.00) >= cro_r:
+	if uniform(0.00, 1.00) >= cro_r:
 		child_a = Chromosome(parent_a.get_genes(), parent_a.get_fit())
 		child_b = Chromosome(parent_b.get_genes(), parent_b.get_fit())
 		return child_a, child_b
 	genes_a, genes_b = [], []
 	# find pivot points at random 1..n-1
-	pivot_a = random.randint(1, len(parent_a)-1)
+	pivot_a = randint(1, len(parent_a)-1)
 	# second pivot is between pivot_a..n-1
-	pivot_b = random.randint(pivot_a, len(parent_a)-1)
+	pivot_b = randint(pivot_a, len(parent_a)-1)
 	for i, _ in enumerate(parent_a):
 		# before first pivot, use genes from one parent
 		if i < pivot_a:
@@ -190,34 +187,14 @@ def mutation(child, mut_r):
 	genes = [gene for gene in child.get_genes()]
 	for i, _ in enumerate(genes):
 		# only perform mutation based on the mutation rate
-		if random.uniform(0.00, 1.00) <= mut_r:
+		if uniform(0.00, 1.00) <= mut_r:
 			# update that axes with random position
-			genes[i] = random.gauss(mu=genes[i], sigma=(BASE + child.get_fit()))
+			genes[i] = gauss(mu=genes[i], sigma=(BASE + child.get_fit()))
 	# we don't need to update the fitness if the gene
 	# hasn't changed, so only update genes if they've changed
 	if genes != child.get_genes():
 		child.set_genes(genes)
 	return child
-
-def initialize_population(size, dim):
-	"""Initializes a random population.
-
-	Parameters:
-		size : the size of the population.
-		dim : the dimensionality of the problem
-
-	Returns:
-		A random population of that many points.
-	"""
-	population = [] # population stored as a list
-	for _ in range(size): # for the size of the population
-		# get random initial weight range
-		rand_min, rand_max = par.get_rand_range()
-		# randomly uniform genes
-		genes = [random.uniform(rand_min, rand_max) for _ in range(dim)]
-		chromosome = Chromosome(genes) # create the chromosome
-		population.append(chromosome) # add to population
-	return population
 
 def elite_selection(population, percent):
 	"""Elite selection function.
@@ -250,7 +227,7 @@ def tournament_selection(population, percent):
 	tournament = []
 	# grab percent% random individuals
 	for _ in range(ceil(len(population)*percent)):
-		random_idx = random.randint(0, len(population)-1)
+		random_idx = randint(0, len(population)-1)
 		tournament.append(population.pop(random_idx)) # append to tournament
 	tournament.sort() # sort by fitness
 	return tournament[0] # return best fit from tournament
@@ -272,19 +249,22 @@ if __name__ == '__main__':
 		AUTO = bool(int(argv[2]))
 	else:
 		AUTO = False
-	MSE, TRP, TEP = [], [], []
-	TRAIN, TEST = io.load_data(f'../data/{argv[1]}.csv')
-	FEATURES = len(TRAIN[0][:-1])
-	CLASSES = len({c[-1] for c in TRAIN+TEST})
+	MSE, TRP, TEP = [], [], [] # set up variables to store testing data
+	# load data to train and test network on
+	TRAIN, TEST = io.load_data(f'../data/{argv[1]}.csv', par.get_holdout())
+	# network-specific parameters
+	FEATURES = len(TRAIN[0][:-1]) # number of attributes of data
+	CLASSES = len({c[-1] for c in TRAIN+TEST}) # distinct classifications
 	HIDDEN_SIZE = par.get_hidden_size(argv[1])
-	CHROMOSOME_SIZE = (HIDDEN_SIZE * (FEATURES+1)) + \
-		(CLASSES * (HIDDEN_SIZE+1))
-	POP_SIZE = par.get_population_size()
+	DIMENSIONS = (HIDDEN_SIZE * (FEATURES+1)) + (CLASSES * (HIDDEN_SIZE+1))
+	EPOCHS, AXIS_RANGE = par.get_epochs(), par.get_rand_range()
+	# ga-specific parameters
+	POP_SIZE = par.get_ga_population_size()
 	CROSS_RATE, MUTAT_RATE, ELITE_PROPORTION, \
 		TOURN_PROPORTION, BASE = par.get_ga_params(argv[1])
-	EPOCHS = par.get_epochs()
-	genetic_network(ELITE_PROPORTION, TOURN_PROPORTION, \
-		CHROMOSOME_SIZE, EPOCHS, POP_SIZE, CROSS_RATE, MUTAT_RATE)
+	# run the ga-nn
+	genetic_algorithm(ELITE_PROPORTION, TOURN_PROPORTION, DIMENSIONS, EPOCHS, \
+		POP_SIZE, AXIS_RANGE, CROSS_RATE, MUTAT_RATE)
 	if not AUTO:
 		io.plot_data(EPOCHS, MSE, TRP, TEP)
 	exit(0)

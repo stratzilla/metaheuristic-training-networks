@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-import network_params as par
 
 def out_console(auto, epoch, mse, trp, tep):
 	"""Console Output function.
@@ -18,23 +17,23 @@ def out_console(auto, epoch, mse, trp, tep):
 	else:
 		print(f'{mse[-1]:.4f}')
 
-def load_data(filename):
+def load_data(filename, holdout):
 	"""Loads CSV for splitting into training and testing data.
 
 	Parameters:
 		filename : the filename of the file to load.
+		holdout : the proportion of examples to use for training.
 
 	Returns:
 		Two lists, each corresponding to training and testing data.
 	"""
-	# get holdout ratio
-	train_percent = par.get_holdout()
 	# load into pandas dataframe
 	df = pd.read_csv(filename, header=None, dtype=float)
+	df = df.sample(100) # only sample 100 random rows
 	# normalize the data
 	for features in range(len(df.columns)-1):
 		df[features] = (df[features] - df[features].mean())/df[features].std()
-	train = df.sample(frac=train_percent).fillna(0.00) # get training portion
+	train = df.sample(frac=holdout).fillna(0.00) # get training portion
 	test = df.drop(train.index).fillna(0.00) # remainder testing portion
 	return train.values.tolist(), test.values.tolist()
 

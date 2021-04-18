@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import random
+from random import uniform
 from sys import argv, exit
 from math import exp
 import network_shared as net
@@ -123,18 +123,21 @@ if __name__ == '__main__':
 		AUTO = bool(int(argv[2]))
 	else:
 		AUTO = False
-	TRAIN, TEST = io.load_data(f'../data/{argv[1]}.csv')
-	FEATURES = len(TRAIN[0][:-1])
-	CLASSES = len({c[-1] for c in TRAIN+TEST})
+	MSE, TRP, TEP = [], [], [] # set up variables to store testing data
+	# load data to train and test network on
+	TRAIN, TEST = io.load_data(f'../data/{argv[1]}.csv', par.get_holdout())
+	# network-specific parameters
+	FEATURES = len(TRAIN[0][:-1]) # number of attributes of data
+	CLASSES = len({c[-1] for c in TRAIN+TEST}) # distinct classifications
 	HIDDEN_SIZE = par.get_hidden_size(argv[1])
-	DIMENSIONS = (HIDDEN_SIZE * (FEATURES+1)) + \
-		(CLASSES * (HIDDEN_SIZE+1))
-	WEIGHTS = [random.uniform(par.get_rand_range()[0], par.get_rand_range()[1])\
-		for _ in range(DIMENSIONS)]
-	NETWORK = net.initialize_network(WEIGHTS, FEATURES, HIDDEN_SIZE, CLASSES)
+	DIMENSIONS = (HIDDEN_SIZE * (FEATURES+1)) + (CLASSES * (HIDDEN_SIZE+1))
+	EPOCHS, AXIS_RANGE = par.get_epochs(), par.get_rand_range()
+	# bp-specific parameters
 	LEARNING_RATE, MOMENTUM_RATE = par.get_bp_params(argv[1])
-	EPOCHS = par.get_epochs()
-	MSE, TRP, TEP = [], [], []
+	# network initialization
+	WEIGHTS = [uniform(AXIS_RANGE[0], AXIS_RANGE[1]) for _ in range(DIMENSIONS)]
+	NETWORK = net.initialize_network(WEIGHTS, FEATURES, HIDDEN_SIZE, CLASSES)
+	# run the bp-nn
 	stochastic_gradient_descent(NETWORK, CLASSES, TRAIN)
 	if not AUTO:
 		io.plot_data(EPOCHS, MSE, TRP, TEP)
