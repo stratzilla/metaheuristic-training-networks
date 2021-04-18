@@ -32,11 +32,11 @@ You can clone this repository to your computer like so:
 You can run any of the training scripts in `/code` like so:
 
 ```bash
- $ ./backprop_network.py <arg>
- $ ./genetic_network.py <arg>
- $ ./particle_network.py <arg>
- $ ./evolve_network.py <arg>
- $ ./bat_network.py <arg>
+ $ ./backprop_network.py <arg>     # BP-NN
+ $ ./genetic_network.py <arg>      # GA-NN
+ $ ./particle_network.py <arg>     # PSO-NN
+ $ ./evolve_network.py <arg>       # DE-NN
+ $ ./bat_network.py <arg>          # BA-NN
 ```
 
 This will train a single network and output a `matplot` plot showing the mean squared error over epochs as well as training and testing accuracy per epoch.
