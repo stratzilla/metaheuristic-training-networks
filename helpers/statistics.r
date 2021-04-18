@@ -6,11 +6,11 @@ library(purrr)
 args = commandArgs(trailingOnly=TRUE)
 
 # get location of .csv files to use
-bp_loc <- paste('../results/',args[1],'-bp.csv',sep='')
-ga_loc <- paste('../results/',args[1],'-ga.csv',sep='')
-pso_loc <- paste('../results/',args[1],'-pso.csv',sep='')
-de_loc <- paste('../results/',args[1],'-de.csv',sep='')
-ba_loc <- paste('../results/',args[1],'-ba.csv',sep='')
+bp_loc <- paste('../results/temp/',args[1],'-bp.csv',sep='')
+ga_loc <- paste('../results/temp/',args[1],'-ga.csv',sep='')
+pso_loc <- paste('../results/temp/',args[1],'-pso.csv',sep='')
+de_loc <- paste('../results/temp/',args[1],'-de.csv',sep='')
+ba_loc <- paste('../results/temp/',args[1],'-ba.csv',sep='')
 
 # load the .csv files
 bp <- read.csv(bp_loc, header=TRUE, sep=",")

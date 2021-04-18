@@ -19,11 +19,11 @@ set ylabel "MSE" offset 2
 set datafile separator comma
 
 # load CSV as lines
-bp = "../results/".res."-bp.csv" 
-ga = "../results/".res."-ga.csv"
-pso = "../results/".res."-pso.csv"
-de = "../results/".res."-de.csv"
-ba = "../results/".res."-ba.csv"
+bp = "../results/temp/".res."-bp.csv" 
+ga = "../results/temp/".res."-ga.csv"
+pso = "../results/temp/".res."-pso.csv"
+de = "../results/temp/".res."-de.csv"
+ba = "../results/temp/".res."-ba.csv"
 
 # get column count
 cols_bp = int(system('head -1 '.bp.' | wc -w'))+1

@@ -52,23 +52,24 @@ case $1 in
 esac
 
 # remove old results
-rm -rf ../results/${1}/bp
-rm -rf ../results/${1}/ga
-rm -rf ../results/${1}/pso
-rm -rf ../results/${1}/de
-rm -rf ../results/${1}/ba
-rm -rf ../results/${1}.csv
-rm -rf ../results/${1}-statistics.txt
+rm -rf ../results/temp/
+rm -rf ../results/csv/${1}.csv
+rm -rf ../results/plots/${1}-plot.png
+rm -rf ../results/statistics/${1}.txt
 
 sleep 0.5
 
 # make directories to hold data
-mkdir -p ../results/${1}/bp
-mkdir -p ../results/${1}/ga
-mkdir -p ../results/${1}/pso
-mkdir -p ../results/${1}/de
-mkdir -p ../results/${1}/ba
+mkdir -p ../results/temp/bp
+mkdir -p ../results/temp/ga
+mkdir -p ../results/temp/pso
+mkdir -p ../results/temp/de
+mkdir -p ../results/temp/ba
+mkdir -p ../results/csv
 mkdir -p ../results/plots
+mkdir -p ../results/statistics
+
+sleep 0.5
 
 max_runs=100
 max_concurrent_runs=10
@@ -77,7 +78,7 @@ printf "\nGetting results for BP-NN with $data_name data set...";
 
 # collect BP-NN data
 for i in $(seq 1 $max_runs); do
-	../code/backprop_network.py ${1} 1 > ../results/${1}/bp/${i}.csv &
+	../code/backprop_network.py ${1} 1 > ../results/temp/bp/${i}.csv &
 	if [ $(( $i % $max_concurrent_runs )) == 0 ]; then
 		# only train ten networks at once
 		wait
@@ -88,7 +89,7 @@ printf " done! \nGetting results for GA-NN with $data_name data set...";
 
 # collect GA-NN data
 for i in $(seq 1 $max_runs); do
-	../code/genetic_network.py ${1} 1 > ../results/${1}/ga/${i}.csv &
+	../code/genetic_network.py ${1} 1 > ../results/temp/ga/${i}.csv &
 	if [ $(( $i % $max_concurrent_runs )) == 0 ]; then
 		wait
 	fi
@@ -98,7 +99,7 @@ printf " done! \nGetting results for PSO-NN with $data_name data set...";
 
 # collect PSO-NN data
 for i in $(seq 1 $max_runs); do
-	../code/particle_network.py ${1} 1 > ../results/${1}/pso/${i}.csv &
+	../code/particle_network.py ${1} 1 > ../results/temp/pso/${i}.csv &
 	if [ $(( $i % $max_concurrent_runs )) == 0 ]; then
 		wait
 	fi
@@ -108,7 +109,7 @@ printf " done! \nGetting results for DE-NN with $data_name data set...";
 
 # collect DE-NN data
 for i in $(seq 1 $max_runs); do
-	../code/evolve_network.py ${1} 1 > ../results/${1}/de/${i}.csv &
+	../code/evolve_network.py ${1} 1 > ../results/temp/de/${i}.csv &
 	if [ $(( $i % $max_concurrent_runs )) == 0 ]; then
 		wait
 	fi
@@ -118,7 +119,7 @@ printf " done! \nGetting results for BA-NN with $data_name data set...";
 
 # collect BA-NN data
 for i in $(seq 1 $max_runs); do
-	../code/bat_network.py ${1} 1 > ../results/${1}/ba/${i}.csv &
+	../code/bat_network.py ${1} 1 > ../results/temp/ba/${i}.csv &
 	if [ $(( $i % $max_concurrent_runs )) == 0 ]; then
 		wait
 	fi
@@ -129,34 +130,34 @@ wait
 printf " done! \nConcatenating results...";
 
 # concatenate all runs into one CSV file
-./concat_csv.py ../results/${1}/bp/ ../../${1}-bp.csv
-./concat_csv.py ../results/${1}/ga/ ../../${1}-ga.csv
-./concat_csv.py ../results/${1}/pso/ ../../${1}-pso.csv
-./concat_csv.py ../results/${1}/de/ ../../${1}-de.csv
-./concat_csv.py ../results/${1}/ba/ ../../${1}-ba.csv
+./concat_csv.py ../results/temp/bp/ ../../temp/${1}-bp.csv
+./concat_csv.py ../results/temp/ga/ ../../temp/${1}-ga.csv
+./concat_csv.py ../results/temp/pso/ ../../temp/${1}-pso.csv
+./concat_csv.py ../results/temp/de/ ../../temp/${1}-de.csv
+./concat_csv.py ../results/temp/ba/ ../../temp/${1}-ba.csv
 
 sleep 1
 
 printf " done! \nCreating a master list of runs...";
 
 # concatenate all CSV files into one master file
-printf "BP-NN\n" > ../results/${1}.csv
-cat ../results/${1}-bp.csv >> ../results/${1}.csv
-printf "\nGA-NN\n" >> ../results/${1}.csv
-cat ../results/${1}-ga.csv >> ../results/${1}.csv
-printf "\nPSO-NN\n" >> ../results/${1}.csv
-cat ../results/${1}-pso.csv >> ../results/${1}.csv
-printf "\nDE-NN\n" >> ../results/${1}.csv
-cat ../results/${1}-de.csv >> ../results/${1}.csv
-printf "\nBA-NN\n" >> ../results/${1}.csv
-cat ../results/${1}-ba.csv >> ../results/${1}.csv
+printf "BP-NN\n" > ../results/csv/${1}.csv
+cat ../results/temp/${1}-bp.csv >> ../results/csv/${1}.csv
+printf "\nGA-NN\n" >> ../results/csv/${1}.csv
+cat ../results/temp/${1}-ga.csv >> ../results/csv/${1}.csv
+printf "\nPSO-NN\n" >> ../results/csv/${1}.csv
+cat ../results/temp/${1}-pso.csv >> ../results/csv/${1}.csv
+printf "\nDE-NN\n" >> ../results/csv/${1}.csv
+cat ../results/temp/${1}-de.csv >> ../results/csv/${1}.csv
+printf "\nBA-NN\n" >> ../results/csv/${1}.csv
+cat ../results/temp/${1}-ba.csv >> ../results/csv/${1}.csv
 
 sleep 1
 
 printf " done! \nPerforming statistical tests...";
 
 # run R script to perform Anova, Tukey HSD
-Rscript statistics.r ${1} > ../results/${1}-statistics.txt
+Rscript statistics.r ${1} > ../results/statistics/${1}.txt
 
 sleep 0.5
 
@@ -170,14 +171,9 @@ sleep 0.5
 printf " done! \nCleaning up...";
 
 # clean up redundant files
-rm -r ../results/${1}
-rm -r ../results/${1}-bp.csv
-rm -r ../results/${1}-ga.csv
-rm -r ../results/${1}-pso.csv
-rm -r ../results/${1}-de.csv
-rm -r ../results/${1}-ba.csv
+rm -rf ../results/temp
 
-sleep 0.5
+sleep 1
 
 printf " done! \nCompleted collecting $data_name data!\n\n";
 

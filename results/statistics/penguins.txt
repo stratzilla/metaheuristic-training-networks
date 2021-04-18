@@ -1,0 +1,46 @@
+Analysis of Variance Table
+
+Response: value
+           Df Sum Sq  Mean Sq F value    Pr(>F)    
+sample      4 0.5096 0.127396  9.0332 4.768e-07 ***
+Residuals 495 6.9810 0.014103                      
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+       Df            Sum Sq          Mean Sq           F value     
+ Min.   :  4.0   Min.   :0.5096   Min.   :0.01410   Min.   :9.033  
+ 1st Qu.:126.8   1st Qu.:2.1274   1st Qu.:0.04243   1st Qu.:9.033  
+ Median :249.5   Median :3.7453   Median :0.07075   Median :9.033  
+ Mean   :249.5   Mean   :3.7453   Mean   :0.07075   Mean   :9.033  
+ 3rd Qu.:372.2   3rd Qu.:5.3632   3rd Qu.:0.09907   3rd Qu.:9.033  
+ Max.   :495.0   Max.   :6.9810   Max.   :0.12740   Max.   :9.033  
+                                                    NA's   :1      
+     Pr(>F)     
+ Min.   :5e-07  
+ 1st Qu.:5e-07  
+ Median :5e-07  
+ Mean   :5e-07  
+ 3rd Qu.:5e-07  
+ Max.   :5e-07  
+ NA's   :1      
+
+  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = dat)
+
+$sample
+                 diff         lwr        upr     p adj
+trt2-trt1 -0.04314040 -0.08912191 0.00284111 0.0778213
+trt3-trt1 -0.03369068 -0.07967219 0.01229083 0.2645507
+trt4-trt1  0.04347369 -0.00250782 0.08945520 0.0740133
+trt5-trt1  0.01635662 -0.02962489 0.06233813 0.8668923
+trt3-trt2  0.00944972 -0.03653179 0.05543123 0.9803202
+trt4-trt2  0.08661409  0.04063258 0.13259560 0.0000036
+trt5-trt2  0.05949702  0.01351551 0.10547853 0.0039518
+trt4-trt3  0.07716437  0.03118286 0.12314588 0.0000540
+trt5-trt3  0.05004730  0.00406579 0.09602881 0.0250830
+trt5-trt4 -0.02711707 -0.07309858 0.01886444 0.4886810
+
+
+trt1 = BA-NN, trt2 = GA-NN, trt3 = PSO-NN, trt4 = DE-NN, trt5 = BA-NN
