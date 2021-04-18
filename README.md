@@ -49,7 +49,7 @@ If you want to automate training multiple networks to find the mean between trai
 
 This will train a hundred networks of each type, concatenate the results into a master CSV file, use R perform various statistical tests, then use `gnuplot` to make a master plot comparing each training technique. All results are found in `\results`. You can edit this file manually to change how many runs per network and how many concurrent runs (default is `100` and `10` respectively, chosen for my system configuration, yours may differ).
 
-These scripts use these for `<arg>`:
+Both single execution and automation scripts use these for `<arg>`:
 
 - `iris` for Iris data set
 - `penguins` for Penguins data set
@@ -57,9 +57,10 @@ These scripts use these for `<arg>`:
 - `wine` for Wine data set
 - `breast` for Breast Cancer data set
 - `ionosphere` for Ionosphere Radar data set
-- `all` as argument for `results_collection.sh` will perform all four experiments
 
-These data sets are defined in `/data`.
+While the automation script has an additional argument for `<arg>`:
+
+- `all` as argument for `results_collection.sh` will train using all data sets
 
 The algorithms are data agnostic and will take any data, you just need to preprocess data to be accepted: final columnar value for data is the classification while the others are attributes. Classes must be enumerated starting at `0`, and attributes should be numerical (continuous or integer).
 
