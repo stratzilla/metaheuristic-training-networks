@@ -93,7 +93,7 @@ Dimensionality is simply `(HL * (IL + 1)) + (OL * (HL + 1))`. These data sets we
 
 # Results
 
-You can see CSV results in `/results` or for a visualization of mean squared error over epochs for each network, you can see these in `/results/plots`. Below is a summary of results:
+You can see CSV results in `/results/csv` or for a visualization of mean squared error over epochs for each network, you can see these in `/results/plots`. Statistical test results are found in `/results/statistics`. Below is a summary of results:
 
 <img width="30%" src="./results/plots/iris-plot.png"/> <img width="30%" src="./results/plots/penguins-plot.png"/>
 
