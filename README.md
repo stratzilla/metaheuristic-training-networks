@@ -95,10 +95,10 @@ Dimensionality is simply `(HL * (IL + 1)) + (OL * (HL + 1))`. These data sets we
 
 You can see CSV results in `/results/csv` or for a visualization of mean squared error over epochs for each network, you can see these in `/results/plots`. Statistical test results are found in `/results/statistics`. Below is a summary of results:
 
-<img width="30%" src="./results/plots/iris-plot.png"/> <img width="30%" src="./results/plots/penguins-plot.png"/>
+<img width="35%" src="./results/plots/iris-plot.png"/> <img width="35%" src="./results/plots/penguins-plot.png"/>
 
-<img width="30%" src="./results/plots/wheat-plot.png"/> <img width="30%" src="./results/plots/wine-plot.png"/>
+<img width="35%" src="./results/plots/wheat-plot.png"/> <img width="35%" src="./results/plots/wine-plot.png"/>
 
-<img width="30%" src="./results/plots/breast-plot.png"/> <img width="30%" src="./results/plots/ionosphere-plot.png"/>
+<img width="35%" src="./results/plots/breast-plot.png"/> <img width="35%" src="./results/plots/ionosphere-plot.png"/>
 
 Left-to-right, top-to-bottom: Iris data set, Penguins data set, Wheat Seeds data set, Wine data set, Breast Cancer data set, Ionosphere Radar data set. Curve is mean squared error per epoch and the tick at the bottom is the epoch in which training reached a termination condition (MSE <= 0.1).
