@@ -51,7 +51,7 @@ case $1 in
 		exit 1;;
 esac
 
-# remove old results
+# remove old results and temp files in case execution previously interrupted
 rm -rf ../results/temp/
 rm -rf ../results/csv/${1}.csv
 rm -rf ../results/plots/${1}-plot.png
@@ -59,7 +59,7 @@ rm -rf ../results/statistics/${1}.txt
 
 sleep 0.5
 
-# make directories to hold data
+# make directories to hold data if they don't yet exit
 mkdir -p ../results/temp/bp
 mkdir -p ../results/temp/ga
 mkdir -p ../results/temp/pso
@@ -71,8 +71,8 @@ mkdir -p ../results/statistics
 
 sleep 0.5
 
-max_runs=100
-max_concurrent_runs=10
+max_runs=1
+max_concurrent_runs=6
 
 printf "\nGetting results for BP-NN with $data_name data set...";
 
@@ -127,6 +127,8 @@ done
 
 wait
 
+sleep 1
+
 printf " done! \nConcatenating results...";
 
 # concatenate all runs into one CSV file
@@ -158,6 +160,15 @@ printf " done! \nPerforming statistical tests...";
 
 # run R script to perform Anova, Tukey HSD
 Rscript statistics.r ${1} > ../results/statistics/${1}.txt
+
+sleep 0.5
+
+# rename treatments as network types
+sed -i 's/trt1/BP/' ../results/statistics/${1}.txt
+sed -i 's/trt2/GA/' ../results/statistics/${1}.txt
+sed -i 's/trt3/PSO/' ../results/statistics/${1}.txt
+sed -i 's/trt4/DE/' ../results/statistics/${1}.txt
+sed -i 's/trt5/BA/' ../results/statistics/${1}.txt
 
 sleep 0.5
 
