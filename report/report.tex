@@ -20,21 +20,93 @@ This paper explores the use of metaheuristics in training a feed-forward artific
 
 \section{Introduction}
 
+Neural networks are a bio-inspired tool under the broader class of machine learning algorithms. It consists of a sequence of layers, themselves containing nodes---called neurons. The biology analogy is the brain where this technique takes its namesake.
 
+These can be used for many tasks, although the classical example is that of classification: using a neural network to train a model which can then be used as a classifier for novel data.
+
+One of the most popular approaches to training a neural network is using backpropagation (\textbf{BP}), which is a gradient-based training mechanism which relies on the existence of an error gradient between a target output value and the actual output value.
+
+However, BP has several caveats: the problem it aims to solve must be linearly differentiable as it relies on differential calculus, the possibility of exploding or vanishing gradients is non-trivial, and while mathematically robust, is conceptually abstract.
+
+Oftentimes neural networks are referred to as black-boxes, as while the inputs and outputs are known, the inner workings of training can be obtuse. Thus while BP is an adequate training mechanism, alternatives do exist which can be simpler to conceptualize.
 
 \section{Metaheuristics}
 
-Metaheuristics are a type of "informed" local-global search which aim to optimize an objective function \cite{mh}. If the search space of a problem is known, it may be an appropriate scenario where a metaheuristic can optimize this problem. These algorithms are often accompanied by or designed with a metaphor in mind, which has lead to controversy \cite{crit}.
+Metaheuristics are a type of local-global search that is more informed than a random search. If a random search looked for solutions stochastically, metaheuristics instead consider variables like the search space and candidate solutions to improve solutions to ideally reach a more fit solution \cite{mh}.
 
+These search algorithms are often population based, where many solutions exist and the search is propelled by characteristics of the solutions---as a whole or individually. As well, metaheuristics are oftentimes accompanied by metaphor, commonly nature inspired, which governs the rules by which a solution can improve.
 
+\pagebreak
+
+Typically metaheuristics are used for optimization problems, where an objective function has an unknown minimum or maximum. Metaheuristics can be deployed to optimize this function to find a global optima.
+
+One such application is for neural network training, where the search space is known and is continuous, but the dimensionality of the problem is often large and therefore a guided search is needed to optimize network weights.
+
+As previously mentioned, BP is a common method to train a neural network but there is merit to the study of metaheuristics for this application as well. Metaheuristics offer a simpler alternative, not only in implementation but also simpler conceptually thanks to the metaphors ascribed to them.
 
 \subsection{Genetic Algorithm}
 
 Genetic algorithm (\textbf{GA}) takes cues from evolutionary biology to evolve solutions to a problem based on both population and individual agent traits \cite{ga}.
 
+In GA, a population of solutions is generated at random, encoded as chromosomes which consist of genes. Every generation, a set of chromosomes are chosen through some selection strategy, and then two genetic operators are applied to create a new population: \textit{crossover} and \textit{mutation}.
+
+The selection strategy is used to create a mating pool, as the metaphor is related to evolutionary biology. Two selection strategies are elitism (where the best fit chromosomes are transferred to the mating pool and new population verbatim) and tournaments (where a random subset of the population is compared and the most fit joins the mating pool). 
+
+From the mating pool, two parent chromosomes are chosen and from them the genetic operators are applied to generate two child chromosomes, filling the new population.
+
+Crossover is the process of recombination between parent chromosomes, one such flavor is two-point crossover, where a contiguous sequence of genes is one parent is swapped with the same sequence in the other.
+
+\[
+    \begin{aligned}
+      \text{parent}_1 &= \{x_1, x_2, x_3, x_4, x_5\} \\
+      \text{parent}_2 &= \{y_1, y_2, y_3, y_4, y_5\} \\
+      \text{child}_1 &= \{x_1, x_2, y_3, y_4, x_5\} \\
+      \text{child}_2 &= \{y_1, y_2, x_3, x_4, y_5\}
+    \end{aligned}
+\]
+
+A contiguous sequence of genes from $i = [3, 4]$ was swapped between both parent chromosomes and they are returned as child chromosomes. Crossover allows novel chromosomes to emerge and allow for exploration of the search space early and more local exploitation later.
+
+To contrast, mutation is the process of randomly changing a chromosome's genes. For example, a Gaussian mutation operator will perturb a gene and set it to a random value around the gene as mean and some standard deviation. Mutation is an exploratory factor since novel genes enter chromosomes which otherwise might not exist in the population.
+
+GA is parameterized with four parameters: \textit{crossover rate}, which denotes how frequently crossover is to occur, \textit{mutation rate}, which is the same for mutation, and then \textit{elite proportion} and \textit{tournament proportion}, each denoting the percent of the population chosen for elitism and tournaments respectively.
+
+Due to elitism, solutions in the population cannot regress and instead either stagnate or continue to improve.
+
+\pagebreak
+
 \subsection{Particle Swarm Optimization}
 
-Particle swarm optimization (\textbf{PSO}) is inspired by the flocking psychology of birds or other swarming animals \cite{pso}. 
+Particle swarm optimization (\textbf{PSO}) is inspired by the flocking psychology of birds or other swarming animals \cite{pso}.
+
+For PSO, a population of solutions is generated in the form of particles. Commonly this is referred to as a swarm. Particles are some encoding of a position and velocity which is used for particle movement: for each generation, the particles move according to arithmetic rules which factor in the swarm best fitness and a particle's historic best fitness.
+
+Three components are needed for updating position and velocity of a particle:
+
+\[
+    \begin{aligned}
+        w &= \omega v_i(t) \\
+        c &= c_1 r_1 (y_i(t) - x_i(t)) \\
+        s &= c_2 r_2 (\hat{y}_i(t) - x_i(t))
+    \end{aligned}
+\]
+
+In order, these are an inertial component, cognitive component, and social component. $v_i$ is the velocity of the particle in the $i$th axis, $y$ and $\hat{y}$ are the particle and swarm best positions, and $x$ is the particle's current position. $r_1$, $r_2$ are stochastic multiplicands.
+
+PSO is taken with three parameters: $\omega$, or the \textit{inertial weight}, which determines the resistance to change in velocity of a particle, $c_1$, or the \textit{cognitive coeffieicne}, dictates how much import a particle's historic best position influences its next position, and $c_2$, or the \textit{social coefficient}, dictates how much import is instead placed on the swarm best position in updating a particle's position.
+
+Particles are then moved using the values for $w$, $c$, and $s$:
+
+\[
+    \begin{aligned}
+        v_i(t+1) &= w + c + s \\
+        p_i(t+1) &= p_i(t) + v_i(t+1)
+    \end{aligned}
+\]
+
+Every generation, every particle is moved according to these rules, and over time, particles seek out the global optima. A larger cognitive coefficient allows for more local exploitation whereas a larger social coefficient allows for more exploration of the search space.
+
+Since particles tend to move closer to the swarm best position, and provided adequate parameters are chosen, particles seldom regress to a worse fitness. Through movement, the swarm tends to a better solution over time.
 
 \subsection{Differential Evolution}
 
@@ -44,41 +116,64 @@ For DE, a population of solutions is generated randomly and are moved through th
 
 While GA considers two parent chromosomes to generate two child chromosomes, DE contrastingly considers three "parent" solutions, combined in some ratio, to form a single new "child" solution. DE does not offer similar selection strategies like elitism as in GA, and instead a new population is guaranteed to be unique between generations.
 
+\pagebreak
+
 Solutions evolve like so: for every solution $x$ in the population, three other solutions are chosen, $a, b, c$ such that $x, a, b, c$ are distinct entities from each other. A solution $y$ is generated according to the below:
 
 \[
-  y_i =
-  \begin{cases}
-    a_i + F \times (b_i - c_i) & \text{if $r_i < CR$ or $i = R$} \\
-    x_i & \text{otherwise} \\
-  \end{cases}
+    y_i =
+    \begin{cases}
+        a_i + F \times (b_i - c_i) & \text{if $r_i < CR$ or $i = R$} \\
+        x_i & \text{otherwise} \\
+    \end{cases}
 \]
 
 $y$ is generated in sequence of axes $i = 1, 2, \dots, n$. For every solution that is created this way, a random index $R \in \{1, 2, \dots, n\}$ is chosen which signifies an axis which is always updated, even if crossover is not to occur. For this equation, $CR$ is the crossover rate and $F$ is the differential weight.
 
 Once $y$ is found, it is compared to $x$, and if it has a better fitness, then $x$ is replaced with $y$ in the population and the process continues for other agents.
 
-This type of evolution is not strictly bio-inspired and instead is more mathematical in nature. Crossover for DE allows the metaheuristic to have an \textit{exploratory factor}, where the search space is explored in larger steps when compared to an \textit{exploitative factor}, where solutions are fine-tuned in place to reach optima around the current solution position. DE still exhibits an exploitative factor, as when the population converges to an optima, all solutions within the population more closer resemble each other, meaning exploration is minute.
+This type of evolution is not strictly bio-inspired and instead is more mathematical in nature. Crossover for DE allows the metaheuristic to have an exploratory factor, where the search space is explored in large steps.
 
-Over time, the best fitness of solutions in the population is improved until convergence (either to a global optimum or local optima). Every generation is assured to either remain the same or improve since a fitness comparison is the criteria for a solution being replaced. In other words, solutions will never regress to a worse solution.
+DE still exhibits an exploitative factor, however, as when the population converges to an optima, all solutions within the population more closer resemble each other, meaning exploration is minute around agents.
+
+Over time, the best fitness of solutions in the population is improved until convergence (either to a global optimum or local optima). Every generation is assured to either remain the same or improve since a fitness comparison is the criteria for a solution being replaced. In other words, solutions will never regress to a worse fitness.
 
 \subsection{Bat Algorithm}
 
 Bat algorithm (\textbf{BA}) is similar to other metaheuristics in that it is a swarm-based approach to improving solutions. Solutions within the search space are updated similar to how swarming microbats descend onto prey or food \cite{ba}.
 
+Like with the other metaheuristics, BA creates a population of solutions---here called bats---as encodings of positions and velocities in $n$-space. Their position is updated according to some rules, not unlike PSO.
+
+BA considers four parameters: \textit{loudness}, which denotes how close to prey (optima) they are, \textit{pulse rate}, which will determine how quickly a bat converges to prey, then values $\alpha$ and $\gamma$ which is a loudness decreasing factor and pulse rate increasing factor respectively. As bats get closer to prey, their loudness will decay, but will converge quicker, thus their pulse rates must increase.
+
+Bats move according to these rules:
+
+\[
+    \begin{aligned}
+        v_i(t+1) &= v_i(t) + f_i(p_i(t) - p_*) \\
+        p_i(t+1) &= p_i(t) + v_i(t+1)
+    \end{aligned}
+\]
+
+Where $v_i$ is the velocity of the bat at position $p_i$. $p_*$ is the best position of bats in the population, and $f_i$ is some frequency. Frequency is determined on a per-bat basis as $f_i = U(f_{min}, f_{max})$, where $f_{min}$ and $f_{max}$ are the minimum and maximum frequencies possible. $U$ being picking uniformly random from within this range.
+
+If a bat is sufficiently close to prey, it will perform a random walk around the current position. Since loudness will decrease the closer a bat gets to its prey, a random walk is performed if $U(0, 1) \geq A_i$, where $A_i$ is the loudness of the bat. This chance increases the closer a bat gets to its target.
+
+\pagebreak
+
+Bat loudness will decay at a rate of $A_i(t+1) = \alpha A_i(t)$ and its pulse rate will increase according to $r_i(t+1) = r_i^0 (1 - \exp{(-\gamma t)})$, where $t$ is a value denoting which generation is current.
+
+With its general traversal of bats, BA exhibits an explorative factor, and with a random walk to fine tune position if close enough to target, an exploitative factor as well. Since bats update their position to only better solutions, it is said BA cannot regress to a worse fitness over time, much like the other metaheuristics mentioned previously.
+
 \section{Network Training}
 
-A neural network is bio-inspired tool under the broader class of machine learning algorithms. It consists of a sequence of layers, themselves containing nodes---called neurons. The biology analogy is the brain, where this technique of machine learning takes its namesake  \cite{mitchell}. Neural networks can be used for many tasks, although the classical usage is one of classification: using a neural network to train a model which can be used as a classifier.
+The layers between neural network layers are composed of synaptic weights: these weights are mathematical links between neurons and signify how strong a signal between neurons is. In the simplest sense, a synaptic weight is some multiplicand between neurons, altering the signal between them: a higher weight amplifies the signal while a lower weight weakens.
 
-The layers between neural network layers are composed of synaptic weights: these weights are mathematical links between neurons and signify how strong a signal between neurons is. In the simplest sense, a synaptic weight is some multiplicand between neurons, altering the signal between them.
+Training patterns are inputted into the network at the first layer, travel to subsequent layers through a \textit{feedforward} process, then when in the output layer, the error is calculated as a function of target and actual values. For BP, the error signal is backpropagated through the network in reverse, adjusting the synaptic weights as needed so the model more closely resembles the training pattern.
 
-One of the most popular approaches to training a neural network is using \textit{backpropagation} (\textbf{BP}), which is a gradient-based training mechanism which relies on the existence of an error gradient between a target output value and the actual found output value. 
+Given enough training patterns and enough repetitions of the process, the network model is able to classify not only previous data fed into it, but also novel data from the same data set.
 
-Training patterns are inputted into the network at the first layer, travel to subsequent layers through a \textit{feedforward} process, then when in the output layer, the error is calculated as a function of target and actual values. The error signal is backpropagated through the network in reverse, adjusting the synaptic weights as needed so the model more closely resembles the training pattern.
-
-Given enough training patterns and enough iterations or repetitions of the process, ultimately---and provided appropriate network parameters are chosen---the network model is able to classify not only previous data fed into it, but also novel data from the same data set.
-
-However, BP is mathematically robust yet conceptually obtuse: oftentimes neural networks are referred as black-boxes, as while the inputs and outputs are known, the inner workings are abstract. Thus while BP is an adequate training mechanism for a neural network, alternatives exist such as the use of metaheuristics.
+You can abstract the process of training a neural network to an optimization problem: finding a network model $A$ such that $E(A) < E(B)$, where $E$ is some error function and $B$ is any other network model. The goal is to minimize the error of the network. While BP can achieve this, metaheuristics can as well.
 
 \begin{figure}[h!]
 \centering
@@ -89,34 +184,38 @@ However, BP is mathematically robust yet conceptually obtuse: oftentimes neural 
 
 In the previous figure, a simple 2-1-2 network is shown and each synaptic weight connecting each layer is enumerated. For this network, which presents a 4-dimensional problem space, it has four weights.
 
-Since metaheuristics explore the search space, it's useful to think of solutions as a position in $n$-space, where $n$ is the dimensionality of the problem. For this example network, solutions update themselves in a 4-dimensional search space.
+Since metaheuristics explore the search space, it's useful to think of solutions as a position in $n$-space, where $n$ is the dimensionality of the problem. For this example network, solutions update themselves in a 4-dimensional space.
 
-Each metaheuristic tested either takes literal sense of this concept---bat algorithm having bat agents with a specific position, as example---or are more abstract or have no close conceptual similarity to an agent "moving". Nevertheless, they all function in an identical fashion.
+Metaheuristics can take literal sense of this concept---bat algorithm having bat agents with a specific position, as example---or can be more abstract or have no close conceptual similarity to an agent "moving". Nevertheless, they all function in an identical fashion.
 
-Since synaptic weights are enumerable in this way, it is simple to decode the network as instead a position in $n$-space. For this reason, a network can be be represented as a solution for a metaheuristic.
+\pagebreak
 
-To use an example, a GA chromosome can be created as some encoding of the network synaptic weights. A network of weights $[w_0, w_1, ..., w_n]$ can be encoded as a chromosome of genes $[x_0, x_1, ..., x_n]$, where $x_i = w_i$. Likewise, this encoding is reversible, where for this sample a chromosome can be translated into a network.
+Since synaptic weights are enumerable in this way, it is simple to decode a network as instead a position in $n$-space. For this reason, a network can be be represented as a solution for a metaheuristic.
 
-This translation is integral to the inter-connectivity between a network and its metaheuristic training mechanism, as a metaheuristic cannot be perform on a network directly.
+To use an example, a GA chromosome can be created as some decoding of the network synaptic weights. A network of weights $[w_0, w_1, ..., w_n]$ can be taken as a chromosome of genes $[x_0, x_1, ..., x_n]$, where $x_i = w_i$ for $i = 0, 1, \dots, n$. Likewise, this decoding is reversible: for this example, a chromosome can be reinitialized or encoded as a network again.
+
+This translation from solution to network and vice-versa is integral to the inter-connectivity between a network and its metaheuristic training mechanism, as a metaheuristic cannot optimize a network weights directly.
 
 \begin{figure}[h!]
 \centering
-\includegraphics[scale=0.75]{images/training-visualization.png}
+\includegraphics[scale=0.80]{images/training-visualization.png}
 \caption{Metaheuristic adapted for training a neural network.}
 \label{fig:training-vis}
 \end{figure}
 
-In the previous figure it is shown how a metaheuristic is integrated within a neural network's training process. For this figure, $d$ is the dimensionality of the network---how many synaptic weights exist in the network---and $n$ is the number of agents for use with the metaheuristic.
+In the previous figure, it is shown how a metaheuristic is integrated within a neural network's training process. For this figure, $d$ is the dimensionality of the network---how many synaptic weights exist in the network---and $n$ is the number of agents for use with the metaheuristic.
 
-Since metaheuristics are population based, this method of training neural networks is analogous to training laterally multiple networks at once and using both the traits of the population and individual solutions to improve.
+Since the metaheuristics tested are population based, this method of training is analogous to training multiple networks laterally at once. However, many of the performance measures are only performed on the best solution of the population.
 
 \section{Experimental Setup}
 
-To evaluate the efficacy of metaheuristics in training a neural network, a standard feedforward network was implemented alongside implementation of each training mechanism: backpropagation (\textbf{BP-NN}), genetic algorithm (\textbf{GA-NN}), particle swarm optimization (\textbf{PSO-NN}), differential evolution (\textbf{DE-NN}), and bat algorithm (\textbf{BA-NN}).
+To evaluate the efficacy of metaheuristics in training a neural network, a standard feedforward network was implemented alongside each training mechanism: backpropagation (\textbf{BP-NN}), genetic algorithm (\textbf{GA-NN}), particle swarm optimization (\textbf{PSO-NN}), differential evolution (\textbf{DE-NN}), and bat algorithm (\textbf{BA-NN}).
+
+\pagebreak
 
 Further, a testing suite was devised to train a model using each training mechanism and collect the results in the form of error over time curves. The error function used is mean squared error (\textbf{MSE}).
 
-This suite performs each training 100 times for each data set and then discards the worst 20\% of runs, as the mean of runs should be indicative of generally good results. A poor training attempt would normally be discarded and here is no different. Runs are then aggregated and the mean is found to be plotted.
+This suite performs each training 100 times for each data set and then discards the worst 20\% of runs, as the mean of runs should be indicative of generally good results. A poor training attempt would normally be discarded and here is no different. Runs are then aggregated and the mean is found and plotted.
 
 Training ceases when one of two conditions are met: either the MSE of the network has reached a value of $0.1$ or below, or the maximum number of epochs has elapsed. In the case where convergence did not occur without the defined number of epochs, that training technique is determined to have not converged.
 
@@ -126,10 +225,11 @@ Consideration has to be given for network and training parameters which vary by 
 
 Six data sets were used: \textit{Iris} \cite{data} for classification of species of iris flowers, \textit{Penguins} \cite{penguins} for classification of penguin species, \textit{Wheat Seeds} \cite{data} for classification of wheat varieties, \textit{Wine} \cite{data} for classification of wine varieties, \textit{Breast Cancer} \cite{data} for classification of breast cancer diagnosis, and \textit{Ionosphere Radar} \cite{data}. These data sets were chosen as they increase in complexity at a generally consistent rate, allowing for scalability of metaheuristic training to be considered.
 
-Rows in the data set comprise of input patterns which are separated into attributes---of which there are many---and classifications---of which there is one, albeit with multiple possible values. The network structured initialized for a given data set is a consequence of these variables: the input layer contains a number of neurons equal to the number of attributes of the data, and the output layer contains a number of neurons equal to the number of distinct possible classifications of the data.
+Rows in the data set are comprised of input patterns which are separated into attributes and classifications. The network structured initialized for a given data set is a consequence of these variables: the input layer contains a number of neurons equal to the number of attributes of the data, and the output layer contains a number of neurons equal to the number of distinct possible classifications of the data.
 
 \begin{table}[h!]
 \centering
+\scalebox{0.8}{
 \begin{tabular}{|c|c|c|c|}
 \hline
 \textbf{Data Set} & \textbf{Instances} & \textbf{Attributes} & \textbf{Classes} \\ \hline
@@ -139,15 +239,16 @@ Rows in the data set comprise of input patterns which are separated into attribu
 \textit{Wine} & 178 & 13 & 3 \\ \hline
 \textit{Breast Cancer} & 570 & 31 & 2 \\ \hline
 \textit{Ionosphere Radar} & 352 & 34 & 2 \\ \hline
-\end{tabular}
+\end{tabular}}
 \caption{Data sets used for results collection.}
 \label{Tab:data-sets}
 \end{table}
 
-In the previous table, this information is tabulated. While the input and output layers of the network is decided by the data, the hidden layer size is arbitrary but still chosen through some experimentation. A smaller hidden layer will train faster, but too small will result in poor results. Experimentation was performed to minimize the hidden layer size while still maintaining satisfactory results.
+While the size of input and output layers of the network is decided by the data, the hidden layer size is arbitrary but still chosen through some experimentation. A smaller hidden layer will train faster, but too small will result in poor results. To this end, smaller hidden layer sizes were preferred if it did not negative impact performance.
 
 \begin{table}[h!]
 \centering
+\scalebox{0.8}{
 \begin{tabular}{|c|c|c|c|c|}
 \hline
 \textbf{Data Set} & \textbf{IL Size} & \textbf{HL Size} & \textbf{OL Size} & \textbf{Dimensionality} \\ \hline
@@ -157,10 +258,12 @@ In the previous table, this information is tabulated. While the input and output
 \textit{Wine} & 13 & 6 & 3 & 105 \\ \hline
 \textit{Breast Cancer} & 31 & 8 & 2 & 274 \\ \hline
 \textit{Ionosphere Radar} & 34 & 10 & 2 & 372 \\ \hline
-\end{tabular}
+\end{tabular}}
 \caption{Dimensionality of each problem.}
 \label{Tab:dim-tab}
 \end{table}
+
+\pagebreak
 
 In the previous table, the dimensionality of each classification problem is found as a function of network topology. Declaratively, the dimensionality of a network problem is found using the below equation:
 
@@ -170,9 +273,7 @@ Dimensionality is related to how "difficult" the classification problem is: whil
 
 \subsection{Parameters}
 
-Each network is initialized with a few parameters, some of which are specific to each metaheuristic used. Many oarameters remain consistent between training methods, but many parameters are initialized on a per-problem basis.
-
-All parameters are chosen through some trial-and-error as there are often no "one size fits all" approach to parameter selection and tuning. Parameters chosen provide generally good results but could be improved, perhaps by an optimization algorithm.
+Each network is initialized with a few parameters, some of which are specific to each metaheuristic used. Many parameters remain consistent between training methods, but many parameters are initialized on a per-problem basis.
 
 \subsubsection{Consistent Parameters}
 
@@ -180,23 +281,23 @@ Parameters related to network topology and the training process are consistent b
 
 \begin{table}[h!]
 \centering
+\scalebox{0.8}{
 \begin{tabular}{|c|c|c|}
 \hline
 \textbf{Epochs} & \textbf{Holdout Ratio} & \textbf{Initial Weight Range} \\ \hline
 100 & 0.70 & {[}-0.50, 0.50{]} \\ \hline
-\end{tabular}
+\end{tabular}}
 \caption{Constant network parameters.}
 \label{Tab:const-par}
 \end{table}
 
-In the previous table, the three constant network parameters are tabulated. Epochs is the amount of training iterations performed and is one of the termination conditions for training, the holdout ratio is the proportion of input data to be used for training the network versus testing the network, and the initial weight range is the range between minimum and maximum values for weight initialization.
-
-Since this is a comparative study between BP and metaheuristics, BP as the default decides many of these parameters. For example, for a metaheuristic to be relatively viable, the number of epochs should not be too dissimilar for metaheuristics: to this end, 100 epochs was chosen as BP could train within this amount in every scenario. The same applies for the other two parameters.
+The three constant network parameters are tabulated. Epochs is the amount of training iterations performed and is one of the termination conditions for training, the holdout ratio is the proportion of input data to be used for training the network versus testing the network, and the initial weight range is the range between minimum and maximum values for weight initialization.
 
 Likewise, hidden layer size is a constant, but only between training methods: this parameter varies only by data set used.
 
 \begin{table}[h!]
 \centering
+\scalebox{0.8}{
 \begin{tabular}{|c|c|}
 \hline
 \textbf{Data Set} & \textbf{Hidden Layer Size} \\ \hline
@@ -206,19 +307,22 @@ Wheat Seeds & 5 \\ \hline
 Wine & 6 \\ \hline
 Breast Cancer & 8 \\ \hline
 Ionosphere Radar & 10 \\ \hline
-\end{tabular}
+\end{tabular}}
 \caption{Hidden layer size per data set.}
 \label{Tab:hl-tab}
 \end{table}
 
-In the previous table, the hidden layer size is tabulated per data set. Since the difference between BP and metaheuristics is being examined, this needs to remain equal as all training methods are effectively training identical networks.
+The hidden layer size is tabulated per data set. Since the difference between BP and metaheuristics is being examined, this needs to remain equal as all training methods are effectively training identical networks.
+
+\pagebreak
 
 \subsubsection{BP-NN}
 
-BP relies on two parameters: \textit{learning rate}, or the amount of correction a synaptic weight should take from the training instance, and \textit{momentum rate}, which considers some portion of the prior training instance when updating using the current training instance.
+BP relies on two parameters: learning rate, or the amount of correction a synaptic weight should take from the training instance, and momentum rate, which considers some portion of the prior training instance when updating using the current training instance.
 
 \begin{table}[h!]
 \centering
+\scalebox{0.8}{
 \begin{tabular}{|c|c|c|}
 \hline
 \textbf{Data Set} & \textbf{LR} & \textbf{MR} \\ \hline
@@ -228,14 +332,12 @@ BP relies on two parameters: \textit{learning rate}, or the amount of correction
 \textit{Wine} & 0.100 & 0.002 \\ \hline
 \textit{Breast Cancer} & 0.100 & 0.003 \\ \hline
 \textit{Ionosphere Radar} & 0.100 & 0.002 \\ \hline
-\end{tabular}
+\end{tabular}}
 \caption{Backpropagation parameters.}
 \label{Tab:bp-par}
 \end{table}
 
-In the previous table, BP-NN parameters are tabulated per data set, where $LR$, $MR$ are learning rate and momentum rate respectively.
-
-Since BP is a single-agent training mechanism, it does not have a population as metaheuristics do.
+BP-NN parameters are tabulated per data set, where $LR$, $MR$ are learning rate and momentum rate respectively.
 
 \subsubsection{GA-NN}
 
@@ -243,6 +345,7 @@ For the first metaheuristic, GA considers six parameters for training. They are 
 
 \begin{table}[h!]
 \centering
+\scalebox{0.8}{
 \begin{tabular}{|c|c|c|c|c|c|c|}
 \hline
 \textbf{Data Set} & \textbf{Population} & \textbf{CR} & \textbf{MR} & \textbf{$E_p$} & \textbf{$T_p$} & \textbf{Base} \\ \hline
@@ -252,12 +355,12 @@ For the first metaheuristic, GA considers six parameters for training. They are 
 \textit{Wine} & 100 & 0.90 & 0.05 & 0.05 & 0.05 & 0.7 \\ \hline
 \textit{Breast Cancer} & 100 & 0.90 & 0.05 & 0.05 & 0.07 & 0.8 \\ \hline
 \textit{Ionosphere Radar} & 100 & 0.90 & 0.06 & 0.05 & 0.09 & 0.9 \\ \hline
-\end{tabular}
+\end{tabular}}
 \caption{Genetic algorithm parameters.}
 \label{Tab:ga-par}
 \end{table}
 
-In the previous table, GA-NN parameters are tabulated per data set, where $CR$, $MR$, $E_p$, $T_p$ are the crossover rates, mutation rates, elite proportions, and tournament proportions respectively.
+GA-NN parameters are tabulated per data set, where $CR$, $MR$, $E_p$, $T_p$ are the crossover rates, mutation rates, elite proportions, and tournament proportions respectively. Base is a value for use in the Gaussian mutation operator where a standard deviation is needed to take values from a Gaussian distribution.
 
 \subsubsection{PSO-NN}
 
@@ -265,6 +368,7 @@ PSO has five different parameters controlling its movement: population size, ine
 
 \begin{table}[h!]
 \centering
+\scalebox{0.8}{
 \begin{tabular}{|c|c|c|c|c|c|}
 \hline
 \textbf{Data Set} & \textbf{Population} & \textbf{$\omega$} & \textbf{$c_1$} & \textbf{$c_2$} & \textbf{Boundary} \\ \hline
@@ -274,12 +378,12 @@ PSO has five different parameters controlling its movement: population size, ine
 \textit{Wine} & 100 & 0.3 & 1.6 & 1.4 & 7 \\ \hline
 \textit{Breast Cancer} & 100 & 0.4 & 1.4 & 1.1 & 7 \\ \hline
 \textit{Ionosphere Radar} & 100 & 0.3 & 1.3 & 1.3 & 9 \\ \hline
-\end{tabular}
+\end{tabular}}
 \caption{Particle swarm optimization parameters.}
 \label{Tab:pso-par}
 \end{table}
 
-In the previous table, these parameters are tabulated per data set, where $\omega$ is the inertial weight and $c_1$, $c_2$ are the cognitive and social coefficients respectively.
+These parameters are tabulated per data set, where $\omega$ is the inertial weight and $c_1$, $c_2$ are the cognitive and social coefficients respectively. Boundary is the edge of the search space: were a particle to go outside the bounds, that axis is randomized to be within the boundary.
 
 \subsubsection{DE-NN}
 
@@ -287,6 +391,7 @@ DE only has three parameters: population size, crossover rate, and differential 
 
 \begin{table}[h!]
 \centering
+\scalebox{0.8}{
 \begin{tabular}{|c|c|c|c|}
 \hline
 \textbf{Data Set} & \textbf{Population} & \textbf{CR} & \textbf{F} \\ \hline
@@ -296,7 +401,7 @@ DE only has three parameters: population size, crossover rate, and differential 
 \textit{Wine} & 50 & 0.90 & 0.20 \\ \hline
 \textit{Breast Cancer} & 50 & 0.90 & 0.15 \\ \hline
 \textit{Ionosphere Radar} & 50 & 0.90 & 0.10 \\ \hline
-\end{tabular}
+\end{tabular}}
 \caption{Differential evolution parameters.}
 \label{Tab:de-par}
 \end{table}
@@ -305,10 +410,11 @@ Above are the DE-NN parameters tabulated, where $CR$ is the crossover rate and $
 
 \subsubsection{BA-NN}
 
-Lastly, BA has six parameters: population size, frequency minimum and maximum, a boundary, a loudness decreasing factor, and a pulse rate increasing factor.
+Lastly, BA has six parameters: population size, frequency minimum and maximum, a boundary, a loudness decreasing factor, and a pulse rate increasing factor. Like with PSO-NN, the boundary is used to keep bats within the search space.
 
 \begin{table}[h!]
 \centering
+\scalebox{0.8}{
 \begin{tabular}{|c|c|c|c|c|c|c|}
 \hline
 \textbf{Data Set} & \textbf{Population} & \textbf{$F_{min}$} & \textbf{$F_{max}$} & \textbf{Boundary} & \textbf{$\alpha$} & \textbf{$\gamma$} \\ \hline
@@ -318,7 +424,7 @@ Lastly, BA has six parameters: population size, frequency minimum and maximum, a
 \textit{Wine} & 100 & 0 & 2 & 7 & 0.90 & 0.90 \\ \hline
 \textit{Breast Cancer} & 100 & 0 & 2 & 7 & 0.90 & 0.90 \\ \hline
 \textit{Ionosphere Radar} & 100 & 0 & 2 & 9 & 0.90 & 0.90 \\ \hline
-\end{tabular}
+\end{tabular}}
 \caption{Bat algorithm parameters.}
 \label{Tab:ba-par}
 \end{table}
@@ -329,13 +435,11 @@ Here tabulated, the BA-NN parameters $F_{min}$, $F_{max}$ are the frequency mini
 
 Every network is trained according to the previously defined test structures. Plots are then generated allowing a visual aid to compare. Two statistical tests are also performed on the data: an ANOVA test and Tukey's HSD test.
 
-The ANOVA test is designed to determine if multiple samples come from the same population; in other words, the ANOVA test is used for testing purposes to identify if all training techniques are the same or there is non-trivial differences between them. An ANOVA test produces two statistics that are relevant: an $F$-score, where an $F >= 1.0$ denotes confidence in the test, and a $p$-value, where a $p <0.05$ suggests there is significance in choosing some training techniques over the others.
+The ANOVA test is to determine if multiple samples come from the same distribution; in other words, the ANOVA test is used for testing purposes to identify if all training techniques are the same or there is non-trivial differences between them. An ANOVA test produces two statistics that are relevant: an $F$-score, where an $F \geq 1.0$ denotes confidence in the test, and a $p$-value, where a $p <0.05$ suggests there is significance in choosing some training techniques over the others.
 
-Tukey's HSD test, if an ANOVA test shows significance, will then identify where outliers exist by doing pairwise comparison of means and variances between samples. If better training methods exist, they will become evident more directly using this test.
+Tukey's HSD test, if an ANOVA test shows significance, will then identify where outliers exist by doing pairwise comparison of means and variances between samples. If better training methods exist, they will become evident more directly using this test. This test can identify if pairs of samples come from the same or different distributions.
 
 Plots show a curve for each training method, where each curve is the MSE over time. At the bottom of each plot is a tickmark which denotes at what epoch, on average, the training method reached a termination condition.
-
-\pagebreak
 
 \subsection{Iris}
 
@@ -343,7 +447,7 @@ Using the Iris data set and network parameters as defined previously for each tr
 
 \begin{figure}[h!]
 \centering
-\includegraphics[scale=0.65]{images/iris-plot.png}
+\includegraphics[scale=0.60]{images/iris-plot.png}
 \caption{Iris test results for metaheuristics and backpropagation.}
 \label{fig:iris}
 \end{figure}
@@ -352,25 +456,24 @@ Visually, two training techniques (PSO-NN and GA-NN) converged to a termination 
 
 To determine if this difference is of statistic importance, an ANOVA test is run using each curve as a sample. This test yields an $F = 17.65$ and a $p < 0.001$ which suggests there is high confidence that there are some training methods that outperform the others.
 
-Tukey's HSD test is then performed showing no significance between GA-NN and PSO-NN. Likewise it shows no significance between BP-NN, DE-NN, and BA-NN. However, samples between each grouping does show significance.
-
-Since Tukey's HSD test showed significance between two groups, on comparing the mean number of epochs it took to reach termination condition, it can be concluded that GA-NN and PSO-NN outperform the other training methods and to a largely significant degree.
+Tukey's HSD test is then performed showing no significance between GA-NN and PSO-NN. Likewise it shows no significance between BP-NN, DE-NN, and BA-NN. However, samples between each grouping does show significance. Since Tukey's HSD test showed significance between two groups, it can be concluded that GA-NN and PSO-NN outperform the other training methods.
 
 \begin{table}[h!]
 \centering
+\scalebox{0.8}{
 \begin{tabular}{c|c|c|c|c|c|}
 \cline{2-6}
  & \textbf{BP-NN} & \textbf{GA-NN} & \textbf{PSO-NN} & \textbf{DE-NN} & \textbf{BA-NN} \\ \hline
 \multicolumn{1}{|c|}{\textit{Min}} & \cellcolor[HTML]{FFCCC9}51 & \cellcolor[HTML]{C5F1BF}9 & 10 & 36 & 31 \\ \hline
 \multicolumn{1}{|c|}{\textit{Avg}} & 70 & 31 & \cellcolor[HTML]{C5F1BF}27 & \cellcolor[HTML]{FFCCC9}82 & 67 \\ \hline
-\end{tabular}
+\end{tabular}}
 \caption{Minimum and average time to terminate for Iris data set.}
 \label{Tab:iris-min}
 \end{table}
 
-Tabulated above is the minimum and mean number of epochs it took to reach a termination condition, green denoting best, and red worst. Here, BP-NN was the slowest network to converge, but on average, DE-NN was the slowest to converge. Agreeing with our results from before, both GA-NN and PSO-NN outperform the others significantly, having the fastest training at once and on average.
-
 \pagebreak
+
+This is the minimum and mean number of epochs it took to reach a termination condition, green denoting best, and red worst. Here, BP-NN was the slowest network to converge, but on average, DE-NN was the slowest to converge. Agreeing with our results from before, both GA-NN and PSO-NN outperform the others significantly, having the fastest training at once and on average.
 
 \subsection{Penguins}
 
@@ -378,7 +481,7 @@ The Penguins data set is then trained upon using network parameters as defined p
 
 \begin{figure}[h!]
 \centering
-\includegraphics[scale=0.65]{images/penguins-plot.png}
+\includegraphics[scale=0.60]{images/penguins-plot.png}
 \caption{Penguins test results for metaheuristics and backpropagation.}
 \label{fig:penguins}
 \end{figure}
@@ -391,12 +494,13 @@ From these tests, it is shown there is no significance in choosing between GA-NN
 
 \begin{table}[h!]
 \centering
+\scalebox{0.8}{
 \begin{tabular}{c|c|c|c|c|c|}
 \cline{2-6}
  & \textbf{BP-NN} & \textbf{GA-NN} & \textbf{PSO-NN} & \textbf{DE-NN} & \textbf{BA-NN} \\ \hline
 \multicolumn{1}{|c|}{\textit{Min}} & \cellcolor[HTML]{FFFFFF}20 & \cellcolor[HTML]{FFFFFF}7 & \cellcolor[HTML]{C5F1BF}6 & \cellcolor[HTML]{FFCCC9}26 & \cellcolor[HTML]{FFFFFF}18 \\ \hline
 \multicolumn{1}{|c|}{\textit{Avg}} & \cellcolor[HTML]{FFFFFF}29 & \cellcolor[HTML]{C5F1BF}14 & \cellcolor[HTML]{FFFFFF}19 & \cellcolor[HTML]{FFCCC9}49 & \cellcolor[HTML]{FFFFFF}37 \\ \hline
-\end{tabular}
+\end{tabular}}
 \caption{Minimum and average time to terminate for Penguins data set.}
 \label{Tab:penguins-min}
 \end{table}
@@ -411,7 +515,7 @@ Then, the Wheat Seeds data set is trained upon to attempt to make a model at cla
 
 \begin{figure}[h!]
 \centering
-\includegraphics[scale=0.65]{images/wheat-plot.png}
+\includegraphics[scale=0.60]{images/wheat-plot.png}
 \caption{Wheat Seeds test results for metaheuristics and backpropagation.}
 \label{fig:wheat}
 \end{figure}
@@ -424,12 +528,13 @@ While the ANOVA test showed significance, the significance is removed were DE-NN
 
 \begin{table}[h!]
 \centering
+\scalebox{0.8}{
 \begin{tabular}{c|c|c|c|c|c|}
 \cline{2-6}
  & \textbf{BP-NN} & \textbf{GA-NN} & \textbf{PSO-NN} & \textbf{DE-NN} & \textbf{BA-NN} \\ \hline
 \multicolumn{1}{|c|}{\textit{Min}} & \cellcolor[HTML]{FFFFFF}29 & \cellcolor[HTML]{C5F1BF}15 & \cellcolor[HTML]{FFFFFF}16 & \cellcolor[HTML]{FFCCC9}53 & \cellcolor[HTML]{FFFFFF}27 \\ \hline
 \multicolumn{1}{|c|}{\textit{Avg}} & \cellcolor[HTML]{FFFFFF}49 & \cellcolor[HTML]{C5F1BF}38 & \cellcolor[HTML]{FFFFFF}52 & \cellcolor[HTML]{FFCCC9}85 & \cellcolor[HTML]{FFFFFF}60 \\ \hline
-\end{tabular}
+\end{tabular}}
 \caption{Minimum and average time to terminate for Wheat Seeds data set.}
 \label{Tab:wheat-min}
 \end{table}
@@ -444,7 +549,7 @@ The Wine data set is trained upon using the previously defined network parameter
 
 \begin{figure}[h!]
 \centering
-\includegraphics[scale=0.65]{images/wine-plot.png}
+\includegraphics[scale=0.60]{images/wine-plot.png}
 \caption{Wine test results for metaheuristics and backpropagation.}
 \label{fig:wine}
 \end{figure}
@@ -457,12 +562,13 @@ From this test, it can be surmised there is strong favor to choosing BP-NN or PS
 
 \begin{table}[h!]
 \centering
+\scalebox{0.8}{
 \begin{tabular}{c|c|c|c|c|c|}
 \cline{2-6}
  & \textbf{BP-NN} & \textbf{GA-NN} & \textbf{PSO-NN} & \textbf{DE-NN} & \textbf{BA-NN} \\ \hline
 \multicolumn{1}{|c|}{\textit{Min}} & \cellcolor[HTML]{FFFFFF}14 & \cellcolor[HTML]{FFFFFF}19 & \cellcolor[HTML]{C5F1BF}13 & \cellcolor[HTML]{FFCCC9}37 & \cellcolor[HTML]{FFFFFF}19 \\ \hline
 \multicolumn{1}{|c|}{\textit{Avg}} & \cellcolor[HTML]{C5F1BF}17 & \cellcolor[HTML]{FFFFFF}43 & \cellcolor[HTML]{FFFFFF}21 & \cellcolor[HTML]{FFCCC9}58 & \cellcolor[HTML]{FFFFFF}45 \\ \hline
-\end{tabular}
+\end{tabular}}
 \caption{Minimum and average time to terminate for Wine data set.}
 \label{Tab:wine-min}
 \end{table}
@@ -481,7 +587,7 @@ The Breast Cancer data set is then trained upon which yields the below plot usin
 
 \begin{figure}[h!]
 \centering
-\includegraphics[scale=0.65]{images/breast-plot.png}
+\includegraphics[scale=0.60]{images/breast-plot.png}
 \caption{Breast Cancer test results for metaheuristics and backpropagation.}
 \label{fig:breast}
 \end{figure}
@@ -494,12 +600,13 @@ Tukey's HSD test is again performed to determine which samples come from the sam
 
 \begin{table}[h!]
 \centering
+\scalebox{0.8}{
 \begin{tabular}{c|c|c|c|c|c|}
 \cline{2-6}
  & \textbf{BP-NN} & \textbf{GA-NN} & \textbf{PSO-NN} & \textbf{DE-NN} & \textbf{BA-NN} \\ \hline
 \multicolumn{1}{|c|}{\textit{Min}} & \cellcolor[HTML]{C5F1BF}6 & \cellcolor[HTML]{FFCCC9}52 & 11 & 37 & 16 \\ \hline
 \multicolumn{1}{|c|}{\textit{Avg}} & \cellcolor[HTML]{C5F1BF}9 & \cellcolor[HTML]{FFCCC9}DNC & 20 & 61 & 32 \\ \hline
-\end{tabular}
+\end{tabular}}
 \caption{Minimum and average time to terminate for Breast Cancer set.}
 \label{Tab:breast-min}
 \end{table}
@@ -516,7 +623,7 @@ The final data set, Ionosphere Radar, is test and plotted according to the previ
 
 \begin{figure}[h!]
 \centering
-\includegraphics[scale=0.65]{images/ionosphere-plot.png}
+\includegraphics[scale=0.60]{images/ionosphere-plot.png}
 \caption{Ionosphere Radar test results for metaheuristics and backpropagation.}
 \label{fig:ionosphere}
 \end{figure}
@@ -529,12 +636,13 @@ Tukey's HSD test shows pairwise significance between samples as significant for 
 
 \begin{table}[h!]
 \centering
+\scalebox{0.8}{
 \begin{tabular}{c|c|c|c|c|c|}
 \cline{2-6}
  & \textbf{BP-NN} & \textbf{GA-NN} & \textbf{PSO-NN} & \textbf{DE-NN} & \textbf{BA-NN} \\ \hline
 \multicolumn{1}{|c|}{\textit{Min}} & \cellcolor[HTML]{C5F1BF}9 & \cellcolor[HTML]{FFCCC9}DNC & 24 & 84 & 23 \\ \hline
 \multicolumn{1}{|c|}{\textit{Avg}} & \cellcolor[HTML]{C5F1BF}22 & \cellcolor[HTML]{FFCCC9}DNC & \cellcolor[HTML]{FFCCC9}DNC & \cellcolor[HTML]{FFCCC9}DNC & 66 \\ \hline
-\end{tabular}
+\end{tabular}}
 \caption{Minimum and average time to terminate for Ionosphere Radar set.}
 \label{Tab:ionosphere-min}
 \end{table}
@@ -547,7 +655,43 @@ While PSO-NN and DE-NN could converge, on average they were unable to. Notable i
 
 \section{Results Summary}
 
+On interpreting the results, a few things can be found for the specific data set classification problems used:
+
+\begin{itemize}
+    \item For Iris, there is significance in choosing PSO-NN and GA-NN over the other methods. Notably, BP-NN is the worst performing training technique for this problem.
+    \item For Penguins, there is significance in choosing any training method over DE-NN.
+    \item For Wheat Seeds, there is significance in choosing any training method other than DE-NN, however the test is inconclusive on which of the remaining four training methods is superior.
+    \item For Wine, there is significance in choosing BP-NN or PSO-NN over other training methods.
+    \item For Breast Cancer, there is significance in choosing BP-NN over other training methods. Of note is for this test, some metaheuristics began to fail to converge.
+    \item For Ionosphere Radar, there is significance in choosing BP-NN over other training methods. Notably, only BP-NN and BA-NN were consistently able to converge.
+\end{itemize}
+
+For the six tests performed, only for Iris were some metaheuristics able to outperform BP-NN. For Penguins, Wheat Seeds, and Wine problems, some metaheuristics were able to perform generally as well as BP-NN. Lastly, for Breast Cancer and Ionosphere Radar tests, BP-NN was the clear winner.
+
+These results suggest metaheuristics may be appropriate for smaller problem sizes, where BP-NN is more suited for larger problems. The scalability of each training method can be verified by plotting convergence speed over dimensionality.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[scale=0.60]{images/best-fit.png}
+\caption{Scalability of training methods per dimension.}
+\label{fig:best-fit}
+\end{figure}
+
+Each curve is colored for a specific training method: BP-NN is purpose, GA-NN is green, PSO-NN is blue, DE-NN is orange, and BA-NN is red.
+
+\pagebreak
+
+This graph shows the scalability of each training method applied to problems of differing dimensionality. The slope of each line denotes how scalable each method is, with a positive slope meaning the method does not scale well with problem size, and a negative slope meaning it does scale.
+
+From this, GA-NN is shown to scale poorly with problem size, yet is still the best performer for small problems. BP-NN, PSO-NN, and DE-NN scale well with problem size; however, DE-NN is the worst performer in most tests, and while it is as scalable as PSO-NN, the difference is consistent between problem sizes. BA-NN is shown to perform roughly equally agnostic of problem size. Likewise, it was the only metaheuristic to converge consistently for the largest test.
+
+This verifies the idea that metaheuristics can outperform BP-NN for certain problem sizes, and while they can scale to higher dimensional problems, BP-NN is quick to overtake them in convergence speed.
+
 \section{Conclusion}
+
+There is merit to studying the use of bio-inspired metaheuristics in training neural networks: many of the advantages include speedier convergence or ability to minimize the error of a network in fewer steps---provided appropriate parameters and if the problem is within a certain size.
+
+Overall, metaheuristics show promise applied to this problem. While a gradient-based approach like backpropagation is the go-to approach, a metaheuristic can be simpler to conceptualize for much of the same performance for some problems. As well, training a bio-inspired network using a bio-inspired metaheuristic seems appropriate.
 
 \bibliographystyle{abbrv}
 \bibliography{references}

@@ -18,6 +18,13 @@ set ylabel "MSE" offset 2
 # separate CSV by commas
 set datafile separator comma
 
+# styles for each training method
+set style line 1 linecolor '#9400d3' linewidth 3 pt 11
+set style line 2 linecolor '#009e74' linewidth 3 pt 11
+set style line 3 linecolor '#56b3e9' linewidth 3 pt 11
+set style line 4 linecolor '#e69d00' linewidth 3 pt 11
+set style line 5 linecolor '#e51e10' linewidth 3 pt 11
+
 # load CSV as lines
 bp = "../results/temp/".res."-bp.csv" 
 ga = "../results/temp/".res."-ga.csv"
@@ -49,13 +56,13 @@ mse_de = (mse_de == 0 ? NaN : mse_de)
 mse_ba = (mse_ba == 0 ? NaN : mse_ba)
 
 # plot each line
-plot bp using cols_bp with lines linecolor 1 linewidth 3 title "BP-NN", \
-	 ga using cols_ga with lines linecolor 2 linewidth 3 title "GA-NN", \
-	 pso using cols_pso with lines linecolor 3 linewidth 3 title "PSO-NN", \
-	 de using cols_de with lines linecolor 4 linewidth 3 title "DE-NN", \
-	 ba using cols_ba with lines linecolor 7 linewidth 3 title "BA-NN", \
-	 mse_bp,t linecolor 1 linewidth 6 title "", \
-	 mse_ga,t linecolor 2 linewidth 6 title "", \
-	 mse_pso,t linecolor 3 linewidth 6 title "", \
-	 mse_de,t linecolor 4 linewidth 6 title "", \
-	 mse_ba,t linecolor 7 linewidth 6 title ""
+plot bp using cols_bp with lines ls 1 title "BP-NN", \
+	 ga using cols_ga with lines ls 2 title "GA-NN", \
+	 pso using cols_pso with lines ls 3 title "PSO-NN", \
+	 de using cols_de with lines ls 4 title "DE-NN", \
+	 ba using cols_ba with lines ls 5 title "BA-NN", \
+	 mse_bp,t ls 1 linewidth 6 title "", \
+	 mse_ga,t ls 2 linewidth 6 title "", \
+	 mse_pso,t ls 3 linewidth 6 title "", \
+	 mse_de,t ls 4 linewidth 6 title "", \
+	 mse_ba,t ls 5 linewidth 6 title ""

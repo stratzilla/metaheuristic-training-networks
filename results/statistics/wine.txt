@@ -1,20 +1,20 @@
 Analysis of Variance Table
 
 Response: value
-           Df Sum Sq  Mean Sq F value    Pr(>F)    
-sample      4 0.7768 0.194209  12.081 2.236e-09 ***
-Residuals 495 7.9573 0.016075                      
+           Df Sum Sq Mean Sq F value    Pr(>F)    
+sample      4  0.711 0.17775  11.228 9.974e-09 ***
+Residuals 495  7.836 0.01583                      
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-       Df            Sum Sq          Mean Sq           F value          Pr(>F) 
- Min.   :  4.0   Min.   :0.7768   Min.   :0.01608   Min.   :12.08   Min.   :0  
- 1st Qu.:126.8   1st Qu.:2.5720   1st Qu.:0.06061   1st Qu.:12.08   1st Qu.:0  
- Median :249.5   Median :4.3671   Median :0.10514   Median :12.08   Median :0  
- Mean   :249.5   Mean   :4.3671   Mean   :0.10514   Mean   :12.08   Mean   :0  
- 3rd Qu.:372.2   3rd Qu.:6.1622   3rd Qu.:0.14968   3rd Qu.:12.08   3rd Qu.:0  
- Max.   :495.0   Max.   :7.9573   Max.   :0.19421   Max.   :12.08   Max.   :0  
-                                                    NA's   :1       NA's   :1  
+       Df            Sum Sq         Mean Sq           F value          Pr(>F) 
+ Min.   :  4.0   Min.   :0.711   Min.   :0.01583   Min.   :11.23   Min.   :0  
+ 1st Qu.:126.8   1st Qu.:2.492   1st Qu.:0.05631   1st Qu.:11.23   1st Qu.:0  
+ Median :249.5   Median :4.274   Median :0.09679   Median :11.23   Median :0  
+ Mean   :249.5   Mean   :4.274   Mean   :0.09679   Mean   :11.23   Mean   :0  
+ 3rd Qu.:372.2   3rd Qu.:6.055   3rd Qu.:0.13727   3rd Qu.:11.23   3rd Qu.:0  
+ Max.   :495.0   Max.   :7.836   Max.   :0.17775   Max.   :11.23   Max.   :0  
+                                                   NA's   :1       NA's   :1  
 
   Tukey multiple comparisons of means
     95% family-wise confidence level
@@ -22,17 +22,15 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 Fit: aov(formula = dat)
 
 $sample
-                 diff          lwr         upr     p adj
-trt2-trt1  0.05933132  0.010239759 0.108422881 0.0088636
-trt3-trt1  0.02597062 -0.023120941 0.075062181 0.5965908
-trt4-trt1  0.11597730  0.066885739 0.165068861 0.0000000
-trt5-trt1  0.06804310  0.018951539 0.117134661 0.0015538
-trt3-trt2 -0.03336070 -0.082452261 0.015730861 0.3402064
-trt4-trt2  0.05664598  0.007554419 0.105737541 0.0144377
-trt5-trt2  0.00871178 -0.040379781 0.057803341 0.9886450
-trt4-trt3  0.09000668  0.040915119 0.139098241 0.0000072
-trt5-trt3  0.04207248 -0.007019081 0.091164041 0.1322029
-trt5-trt4 -0.04793420 -0.097025761 0.001157361 0.0594262
+                 diff           lwr         upr     p adj
+GA-BP  0.05590188  0.0071859144  0.10461785 0.0152591
+PSO-BP  0.02761046 -0.0211055056  0.07632643 0.5292751
+DE-BP  0.11383941  0.0651234444  0.16255538 0.0000000
+BA-BP  0.04959030  0.0008743344  0.09830627 0.0436997
+PSO-GA -0.02829142 -0.0770073856  0.02042455 0.5045069
+DE-GA  0.05793753  0.0092215644  0.10665350 0.0105563
+BA-GA -0.00631158 -0.0550275456  0.04240439 0.9966048
+DE-PSO  0.08622895  0.0375129844  0.13494492 0.0000166
+BA-PSO  0.02197984 -0.0267361256  0.07069581 0.7307085
+BA-DE -0.06424911 -0.1129650756 -0.01553314 0.0030891
 
-
-trt1 = BA-NN, trt2 = GA-NN, trt3 = PSO-NN, trt4 = DE-NN, trt5 = BA-NN

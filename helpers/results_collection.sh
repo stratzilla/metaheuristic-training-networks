@@ -71,8 +71,8 @@ mkdir -p ../results/statistics
 
 sleep 0.5
 
-max_runs=1
-max_concurrent_runs=6
+max_runs=100
+max_concurrent_runs=10
 
 printf "\nGetting results for BP-NN with $data_name data set...";
 
