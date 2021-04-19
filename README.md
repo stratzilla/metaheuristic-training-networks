@@ -4,6 +4,8 @@ This repository was used for a comparative study between backpropagation trained
 
 I wrote a <a href="./report/report.pdf">paper</a> (WIP) describing my experimental methodology and results in more detail. I also wrote <a href="https://github.com/stratzilla/AI-ML-tutorials">tutorials</a> for implementing each metaheuristic, alone and when used in conjunction with a neural network. The code found in this repository is more or less taken straight from these tutorials as I made the tutorials to prepare for my experimentation.
 
+The code herein includes an implementation of a feedforward neural network trained using backpropagation, genetic algorithm, particle swarm optimization, differential evolution, and bat algorithm. There is also a testing suite to train multiple networks concurrently to generate plots to compare between them.
+
 # Dependencies
 
 - GNU/Linux
