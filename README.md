@@ -105,3 +105,14 @@ You can see CSV results in `/results/csv` or for a visualization of mean squared
 <img width="35%" src="./results/plots/breast-plot.png"/> <img width="35%" src="./results/plots/ionosphere-plot.png"/>
 
 Left-to-right, top-to-bottom: Iris data set, Penguins data set, Wheat Seeds data set, Wine data set, Breast Cancer data set, Ionosphere Radar data set. Curve is mean squared error per epoch and the tick at the bottom is the epoch in which training reached a termination condition (MSE <= 0.1).
+
+According to ANOVA and Tukey HSD tests, there is some merit to using metaheuristics in training a neural network.
+
+- for the Iris data set, tests favor GA-NN and PSO-NN over BP-NN
+- for the Penguins data set, tests do not favor any training type; however, DE-NN is an outlier with worse performance
+- for the Wheat Seeds data set, tests suggest DE-NN is again a worse outlier, inconclusive in choosing between others
+- for the Wine data set, tests favor BP-NN and PSO-NN over the others, but no significance in choosing either
+- for the Breast Cancer data set, tests show significance in choosing BP-NN over metaheuristics
+- for the Ionosphere Radar data set, tests show strong significance in choosing BP-NN over metaheuristics
+
+These results suggest that for small problems, some metaheuristics can and do outperform backpropagation. For medium problems, some metaheuristics can perform as well as backpropagation. For larger problems, backpropagation is the clear winner. As well, some metaheuristics scale better for larger problems. GA-NN was found to scale very poorly to larger problems, whereas PSO-NN and BA-NN were found to scale very well. Nevertheless, backpropagation scales the best with problem size.
