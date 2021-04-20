@@ -49,7 +49,13 @@ If you want to automate training multiple networks to find the mean between trai
  $ ./results_collection.sh <arg>
 ```
 
-This will train a hundred networks of each type, concatenate the results into a master CSV file, use R perform various statistical tests, then use `gnuplot` to make a master plot comparing each training technique. All results are found in `\results`. You can edit this file manually to change how many runs per network and how many concurrent runs (default is `100` and `10` respectively, chosen for my system configuration, yours may differ).
+This will train a hundred networks of each type, concatenate the results into a master CSV file, use R to perform various statistical tests, then use `gnuplot` to make a master plot comparing each training technique. You can edit this file manually to change how many runs per network and how many concurrent runs (default is `100` and `10` respectively, chosen for my system configuration, yours may differ).
+
+Results from `results.collection.sh` are saved to the `/results` directory:
+
+- `/results/csv` is the raw CSV data collected for error per epoch per run
+- `/results/plots` is the error curves plotted per training method
+- `/results/statistics` is ANOVA and Tukey Range Test results performed using data as samples
 
 Both single execution and automation scripts use these for `<arg>`:
 
@@ -115,4 +121,6 @@ According to ANOVA and Tukey HSD tests, there is some merit to using metaheurist
 - for the Breast Cancer data set, tests show significance in choosing BP-NN over metaheuristics
 - for the Ionosphere Radar data set, tests show strong significance in choosing BP-NN over metaheuristics
 
-These results suggest that for small problems, some metaheuristics can and do outperform backpropagation. For medium problems, some metaheuristics can perform as well as backpropagation. For larger problems, backpropagation is the clear winner. As well, some metaheuristics scale better for larger problems. GA-NN was found to scale very poorly to larger problems, whereas PSO-NN and BA-NN were found to scale very well. Nevertheless, backpropagation scales the best with problem size.
+These results suggest that for small problems, some metaheuristics can and do outperform backpropagation. For medium problems, some metaheuristics can perform as well as backpropagation. For larger problems, backpropagation is the clear winner. 
+
+As well, some metaheuristics scale better for larger problems. GA-NN was found to scale very poorly to larger problems, whereas PSO-NN and BA-NN were found to scale very well. Nevertheless, backpropagation scales the best with problem size.
