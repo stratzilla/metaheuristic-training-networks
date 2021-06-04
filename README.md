@@ -72,7 +72,7 @@ While the automation script has an additional argument for `<arg>`:
 
 The algorithms are data agnostic and will take any data, you just need to preprocess data to be accepted: final columnar value for data is the classification while the others are attributes. Classes must be enumerated starting at `0`, and attributes should be numerical (continuous or integer).
 
-Network and metaheuristic parameters can be found in `/code/network_params.py`: it's separated so you can edit and test parameters without editing each network's code. The parameters as seen there work generally well but of course you can probably find better parameters through experimentation.
+Network and metaheuristic parameters can be found in `/code/network_params.py`: it's separated so you can edit and test parameters without editing each network's code. The parameters as seen there work generally well but of course you can probably find better parameters through experimentation. Alternatively, you can add a metaheuristic layer on top to optimize parameters, but this was outside scope of this project.
 
 # Data
 
@@ -114,13 +114,11 @@ Left-to-right, top-to-bottom: Iris data set, Penguins data set, Wheat Seeds data
 
 According to ANOVA and Tukey HSD tests, there is some merit to using metaheuristics in training a neural network.
 
-- for the Iris data set, tests favor GA-NN and PSO-NN over BP-NN
-- for the Penguins data set, tests do not favor any training type; however, DE-NN is an outlier with worse performance
-- for the Wheat Seeds data set, tests suggest DE-NN is again a worse outlier, inconclusive in choosing between others
-- for the Wine data set, tests favor BP-NN and PSO-NN over the others, but no significance in choosing either
-- for the Breast Cancer data set, tests show significance in choosing BP-NN over metaheuristics
-- for the Ionosphere Radar data set, tests show strong significance in choosing BP-NN over metaheuristics
+- `iris`, GA-NN and PSO-NN have significantly better results than others
+- `penguins`, DE-NN is a worse outlier, no significance between others
+- `wheat`, DE-NN again a worse outlier, inconclusive results for others
+- `wine`, BP-NN and PSO-NN have significantly better results than others
+- `breast`, BP-NN significantly better than others
+- `ionosphere`, BP-NN strong significance is better than others
 
-These results suggest that for small problems, some metaheuristics can and do outperform backpropagation. For medium problems, some metaheuristics can perform as well as backpropagation. For larger problems, backpropagation is the clear winner. 
-
-As well, some metaheuristics scale better for larger problems. GA-NN was found to scale very poorly to larger problems, whereas PSO-NN and BA-NN were found to scale very well. Nevertheless, backpropagation scales the best with problem size.
+These results suggest that for small problems, some metaheuristics outperform backpropagation; for medium problems, some metaheuristics perform as well as backpropagation; for large problems, backpropagation outperforms metaheuristics. As well, some metaheuristics scale better for larger problems: GA-NN was found to scale very poorly to larger problems, whereas PSO-NN and BA-NN were found to scale very well. Nevertheless, backpropagation scales the best with problem size.
