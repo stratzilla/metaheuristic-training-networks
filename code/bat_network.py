@@ -144,7 +144,6 @@ def move_bats(population, dim, qmin, qmax, alf, gam, bnd, step):
 		new_vel = [0.00 for _ in range(dim)]
 		average_loudness = sum(a.get_loudness() for a in population)
 		average_loudness /= len(population)
-		#print(average_loudness)
 		freq = uniform(qmin, qmax) # find a random frequency for bat
 		pulse_chance = uniform(0, 1) # chance for bat to move closer to best
 		for d in range(dim): # for each axis of position
