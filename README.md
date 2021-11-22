@@ -121,4 +121,6 @@ According to ANOVA and Tukey HSD tests, there is some merit to using metaheurist
 - `breast`, BP-NN significantly better than others
 - `ionosphere`, BP-NN strong significance is better than others
 
-These results suggest that for small problems, some metaheuristics outperform backpropagation; for medium problems, some metaheuristics perform as well as backpropagation; for large problems, backpropagation outperforms metaheuristics. As well, some metaheuristics scale better for larger problems: GA-NN was found to scale very poorly to larger problems, whereas PSO-NN and BA-NN were found to scale very well. Nevertheless, backpropagation scales the best with problem size. To make the explanation short, metaheuristics are shown to prefer smaller problems.
+These results suggest that for small problems, some metaheuristics outperform backpropagation; for medium problems, some metaheuristics perform as well as backpropagation; for large problems, backpropagation outperforms metaheuristics.
+
+As well, some metaheuristics scale better for larger problems: GA-NN was found to scale very poorly to larger problems, whereas PSO-NN and BA-NN were found to scale very well. Nevertheless, backpropagation scales the best with problem size. To make the explanation short, metaheuristics are shown to prefer smaller problems.
